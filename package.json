@@ -4,11 +4,11 @@
   "description": "A small module for installing local packages. Works for both npm >= 5 and older versions.",
   "main": "src/index.js",
   "scripts": {
-    "prebuild": "rimraf **/*.js **/*.map **/*.d.ts",
+    "prebuild": "rimraf src/**/*.js src/**/*.map src/**/*.d.ts test/**/*.js test/**/*.map test/**/*.d.ts",
     "build": "tsc -p .",
     "postbuild": "tslint -p .",
     "pretest": "npm run build",
-    "test": "mocha",
+    "test": "mocha --timeout 10000",
     "start": "tsc -w",
     "preversion": "npm t"
   },

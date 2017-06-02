@@ -19,7 +19,8 @@ describe('installLocal in sample project', () => {
 
     it('should install local as an actual node package (not link)', () => {
         return installLocal('.', 'sample').then(() => Promise.all([
-            readdirInSample('node_modules').then(dirs => expect(dirs).to.deep.equal(['install-local'])),
+            readdirInSample('node_modules').then(dirs => expect(dirs).to.deep.equal(['.bin', 'install-local'])),
+            readdirInSample('node_modules/.bin').then(dirs => expect(dirs[0]).to.deep.equal('install-local')),
             readdirInSample('node_modules/install-local')
                 .then(dirs => expect(dirs).to.deep.equal(['bin', 'package.json', 'src']))
         ]));
