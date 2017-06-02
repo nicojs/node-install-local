@@ -39,6 +39,7 @@
     "@types/sinon": "^2.2.2",
     "chai": "^4.0.1",
     "mocha": "^3.4.2",
+    "rimraf": "^2.6.1",
     "sinon": "^2.3.2",
     "tslint": "^5.4.2",
     "typescript": "^2.3.4"
