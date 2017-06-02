@@ -22,7 +22,7 @@ describe('installLocal in sample project', () => {
             readdirInSample('node_modules').then(dirs => expect(dirs).to.deep.equal(['.bin', 'install-local'])),
             readdirInSample('node_modules/.bin').then(dirs => expect(dirs[0]).to.deep.equal('install-local')),
             readdirInSample('node_modules/install-local')
-                .then(dirs => expect(dirs).to.deep.equal(['bin', 'package.json', 'src']))
+                .then(dirs => expect(dirs).to.deep.equal(['README.md', 'bin', 'package.json', 'src']))
         ]));
     });
 });
