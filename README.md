@@ -45,9 +45,9 @@ FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memo
 
 An other reason is with `npm link` your **not** testing if your package actually installs correctly. You might have files in there that will not be there after installation.
 
-## Can't i use `npm install file:../my-dependency-package`
+## Can't i use `npm i file:`?
 
-You could use `npm install file:..` versions of npm < version 5.
+You could use `npm install file:..` versions of npm prior to version 5. It installed the package locally. Since version 5, the functionality changed to `npm link` instead. More info here: https://github.com/npm/npm/pull/15900
 
 ## How to guarantee a production-like install
 
