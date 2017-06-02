@@ -1,0 +1,46 @@
+{
+  "name": "install-local",
+  "version": "0.0.0",
+  "description": "A small module for installing local packages. Works for both npm >= 5 and older versions.",
+  "main": "src/index.js",
+  "scripts": {
+    "prebuild": "rimraf **/*.js **/*.map **/*.d.ts",
+    "build": "tsc -p .",
+    "postbuild": "tslint -p .",
+    "pretest": "npm run build",
+    "test": "mocha",
+    "start": "tsc -w",
+    "preversion": "npm t"
+  },
+  "bin": {
+    "install-local": "bin/install-local"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicojs/node-install-local.git"
+  },
+  "keywords": [
+    "npm",
+    "install",
+    "local",
+    "yarn"
+  ],
+  "author": "Nico Jansen <jansennico@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/nicojs/node-install-local/issues"
+  },
+  "homepage": "https://github.com/nicojs/node-install-local#readme",
+  "devDependencies": {
+    "@types/chai": "^4.0.0",
+    "@types/mocha": "^2.2.41",
+    "@types/node": "^7.0.26",
+    "@types/rimraf": "0.0.28",
+    "@types/sinon": "^2.2.2",
+    "chai": "^4.0.1",
+    "mocha": "^3.4.2",
+    "sinon": "^2.3.2",
+    "tslint": "^5.4.2",
+    "typescript": "^2.3.4"
+  }
+}
