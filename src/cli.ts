@@ -1,17 +1,30 @@
 import { installLocal } from './index';
 
-const args = process.argv
-    .filter((_, i) => i > 1);
+export function cli(argv: string[]) {
 
-if (args.length < 2) {
-    console.log();
-    console.log('Install packages locally without changing the package.json');
-    console.log();
-    console.log('Usage: install-local <from> <to> [<to>, ...]');
-    console.log('Installs package in <from> directory in package of <to> directories.');
-    process.exit(1);
+    const args = argv
+        .filter((_, i) => i > 1);
+
+    if (args.length < 1) {
+        console.log();
+        console.log('Install packages locally without changing the package.json');
+        console.log();
+        console.log('Usage: install-local <folder>[, <folder>, ...]');
+        console.log('');
+        console.log('Installs a package from the filesystem into the current directory without touching the package.json.');
+        console.log('');
+        console.log('Examples: ');
+        console.log(' install-local ..');
+        console.log('   install the package located in the parent folder into the current directory.');
+        console.log(' install-local ../sibling ../sibling2');
+        console.log('   install the packages in 2 sibling directories into the current directory.');
+        console.log(' install-local');
+        console.log('   Print this help.');
+        process.exit(1);
+    } else {
+        installLocal({ '.': args }).catch(err => {
+            console.error(err);
+            process.exit(1);
+        });
+    }
 }
-installLocal(args[0], ...args.slice(1)).catch(err => {
-    console.error(err);
-    process.exit(1);
-});

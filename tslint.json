@@ -9,7 +9,8 @@
         "arrow-parens": false,
         "trailing-comma": false,
         "interface-name": false,
-        "no-console": false
+        "no-console": false,
+        "max-line-length": 160
     },
     "rulesDirectory": []
 }

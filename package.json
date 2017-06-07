@@ -8,7 +8,7 @@
     "build": "tsc -p .",
     "postbuild": "tslint -p .",
     "pretest": "npm run build",
-    "test": "mocha --timeout 10000",
+    "test": "mocha --timeout 10000 test/**/*.js",
     "start": "tsc -w",
     "preversion": "npm t"
   },

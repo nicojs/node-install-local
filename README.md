@@ -8,20 +8,48 @@ Installs npm/yarn packages locally without symlink. Exactly the same as your pro
 
 You can use install-local from command line or programmatically.
 
-Command line:
+### Command line:
 
 ```bash
-$ install-local my-package my-dependant-package [my-dependant-package2, ...]
+Usage: install-local <folder>[, <folder>, ...]
 ```
 
-From node:
+Installs a package from the filesystem into the current directory without touching the package.json.
+
+Examples:
+* `install-local ..`
+Install the package located in the parent folder into the current directory.
+* `install-local ../sibling ../sibling2`
+Install the packages in 2 sibling directories into the current directory.
+* `install-local`
+Print this help
+
+### From node:
 
 ```javascript
 const { installLocal } = require('install-local');
-installLocal('my-package', 'my-dependant-package'/*, my-dependant-package2, ...*/)
+installLocal({
+    '.': ['../my-dependency'/*, ../my-dependency2, ...*/],
+    'sibling': ['.']
+})
     .then(() => console.log('done'))
     .catch(err => console.error(err));
 ```
+
+Execute `installLocal` with an object as parameter. The properties of this object are the relative package locations to install into. The array values are the packages to be installed.
+
+For example:
+
+```javascript
+installLocal({
+   /*1*/ '.': ['../sibling1', '../sibling2'],
+   /*2*/ '../dependant': ['.']
+})
+```
+
+1. This will install packages located in the directories "sibling1" and "sibling2" next to the current working directory into the package located in the current working directory (`'.'`) 
+2. This will install the package located in the current working directory (`'.'`) into the package located in 
+the "dependant" directory located next to the current working directory.
 
 _TypeScript types are also included_
 

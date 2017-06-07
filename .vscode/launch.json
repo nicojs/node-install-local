@@ -7,13 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceRoot}/src/index.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Mocha Tests",
+            "name": "All Tests",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
                 "-u",
@@ -21,7 +15,22 @@
                 "--timeout",
                 "999999",
                 "--colors",
-                "${workspaceRoot}/test"
+                "${workspaceRoot}/test/**/*.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Unit Tests",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceRoot}/test/unit"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         }
