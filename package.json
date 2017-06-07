@@ -1,6 +1,6 @@
 {
   "name": "install-local",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A small module for installing local packages. Works for both npm >= 5 and older versions.",
   "main": "src/index.js",
   "scripts": {
