@@ -14,5 +14,9 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true
-  }
+  },
+  "exclude": [
+    "sample",
+    "node_modules"
+  ]
 }

@@ -12,10 +12,12 @@ export interface ListByPackage {
     [key: string]: string[];
 }
 
-export function installLocal(packagesByTarget: ListByPackage) {
+export function installLocal(packagesByTarget: ListByPackage): Promise<ListByPackage> {
     const packagesBySource = mapToPackagesBySource(packagesByTarget);
-    return Promise.all(Object.keys(packagesBySource)
-        .map(source => installPackagesInto(source, packagesBySource[source])));
+    return Promise.all(
+        Object.keys(packagesBySource)
+            .map(source => installPackagesInto(source, packagesBySource[source])))
+        .then(() => packagesBySource);
 }
 
 export function mapToPackagesBySource(packagesByTarget: ListByPackage) {

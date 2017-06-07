@@ -1,11 +1,12 @@
+import * as path from 'path';
 import { installLocal } from './index';
 
 export function cli(argv: string[]) {
 
-    const args = argv
+    const directories = argv
         .filter((_, i) => i > 1);
 
-    if (args.length < 1) {
+    if (directories.length < 1) {
         console.log();
         console.log('Install packages locally without changing the package.json');
         console.log();
@@ -22,7 +23,11 @@ export function cli(argv: string[]) {
         console.log('   Print this help.');
         process.exit(1);
     } else {
-        installLocal({ '.': args }).catch(err => {
+        installLocal({ '.': directories }).then(packagesBySource => {
+            Object.keys(packagesBySource).forEach(source => {
+                console.log(`Installed ${path.basename(source)} into ${packagesBySource[source].map(target => path.basename(target))}`);
+            });
+        }).catch(err => {
             console.error(err);
             process.exit(1);
         });
