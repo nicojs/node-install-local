@@ -47,7 +47,7 @@ Install the packages in 2 sibling directories into the current directory.
 * `install-local --help`
 Print this help
 
-See [Programmatically](#Programmatically) to see how use `local-install` from node.
+See [Programmatically](#programmatically) to see how use `local-install` from node.
 
 ## Why?
 
