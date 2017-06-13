@@ -30,6 +30,7 @@
                 "--timeout",
                 "999999",
                 "--colors",
+                "${workspaceRoot}/test/helpers",
                 "${workspaceRoot}/test/unit"
             ],
             "internalConsoleOptions": "openOnSessionStart"

@@ -1,35 +1,46 @@
-import * as path from 'path';
-import { installLocal } from './index';
+import { LocalInstaller, progressBar, readLocalDependencies } from './index';
+import { saveIfNeeded } from './index';
 
-export function cli(argv: string[]) {
+export function execute(argv: string[]) {
 
-    const directories = argv
+    const args = argv
         .filter((_, i) => i > 1);
 
-    if (directories.length < 1) {
-        console.log();
-        console.log('Install packages locally without changing the package.json');
-        console.log();
-        console.log('Usage: install-local <folder>[, <folder>, ...]');
-        console.log('');
-        console.log('Installs a package from the filesystem into the current directory without touching the package.json.');
-        console.log('');
-        console.log('Examples: ');
-        console.log(' install-local ..');
-        console.log('   install the package located in the parent folder into the current directory.');
-        console.log(' install-local ../sibling ../sibling2');
-        console.log('   install the packages in 2 sibling directories into the current directory.');
-        console.log(' install-local');
-        console.log('   Print this help.');
-        process.exit(1);
+    const argumentDependencies = args
+        .filter(arg => arg.substr(0, 1) !== '-');
+    const options = args
+        .filter(arg => arg.substr(0, 1) === '-');
+
+    const l = console.log;
+    if (options.indexOf('--help') >= 0 || options.indexOf('-h') >= 0) {
+        l();
+        l('Install packages locally.');
+        l();
+        l('Usage:');
+        l(' install-local');
+        l(' install-local [options] <directory>[, <directory>, ...]');
+        l();
+        l('Installs packages from the filesystem into the current directory.');
+        l();
+        l('Options: ');
+        l();
+        l(' -h, --help      Output this help');
+        l(' -S, --save      Saved packages will appear in your package.json under "localDependencies"');
+        l();
+        l('Examples: ');
+        l(' install-local');
+        l('   install the "localDependencies" of your current package');
+        l(' install-local ..');
+        l('   install the package located in the parent folder into the current directory.');
+        l(' install-local --save ../sibling ../sibling2');
+        l('   install the packages of 2 sibling directories into the current directory and save them to "localDependencies" in your package.json file.');
+        return Promise.resolve();
     } else {
-        installLocal({ '.': directories }).then(packagesBySource => {
-            Object.keys(packagesBySource).forEach(source => {
-                console.log(`Installed ${path.basename(source)} into ${packagesBySource[source].map(target => path.basename(target))}`);
-            });
-        }).catch(err => {
-            console.error(err);
-            process.exit(1);
+        return readLocalDependencies(argumentDependencies).then(localDependencies => {
+            const installer = new LocalInstaller({ '.': localDependencies });
+            progressBar(installer);
+            installer.install()
+                .then(saveIfNeeded(options));
         });
     }
 }

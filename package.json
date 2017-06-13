@@ -33,15 +33,27 @@
   "homepage": "https://github.com/nicojs/node-install-local#readme",
   "devDependencies": {
     "@types/chai": "^4.0.0",
+    "@types/chai-as-promised": "0.0.31",
+    "@types/lodash": "^4.14.65",
     "@types/mocha": "^2.2.41",
+    "@types/mz": "0.0.31",
     "@types/node": "^7.0.26",
+    "@types/progress": "^2.0.0",
     "@types/rimraf": "0.0.28",
     "@types/sinon": "^2.2.2",
+    "@types/sinon-chai": "^2.7.28",
     "chai": "^4.0.1",
+    "chai-as-promised": "^7.0.0",
     "mocha": "^3.4.2",
     "rimraf": "^2.6.1",
     "sinon": "^2.3.2",
+    "sinon-chai": "^2.11.0",
     "tslint": "^5.4.2",
     "typescript": "^2.3.4"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "mz": "^2.6.0",
+    "progress": "^2.0.0"
   }
 }

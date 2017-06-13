@@ -5,12 +5,34 @@
     ],
     "jsRules": {},
     "rules": {
-        "quotemark": "'",
-        "arrow-parens": false,
-        "trailing-comma": false,
-        "interface-name": false,
-        "no-console": false,
-        "max-line-length": 160
+        "quotemark": [
+            true,
+            "single",
+            "jsx-double"
+        ],
+        "arrow-parens": [
+            false
+        ],
+        "object-literal-sort-keys": false,
+        "no-unused-expression": [
+            false
+        ],
+        "trailing-comma": [
+            false
+        ],
+        "interface-name": [
+            false
+        ],
+        "no-console": [
+            false
+        ],
+        "max-line-length": [
+            true,
+            160
+        ],
+        "ban-types": [
+            false
+        ]
     },
     "rulesDirectory": []
 }
