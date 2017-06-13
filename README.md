@@ -6,9 +6,15 @@ Installs npm/yarn packages locally without symlink, also in npm 5. Exactly the s
 
 ## Getting started
 
+Install with
+
+```bash
+npm install -g install-local
+```
+
 You can use install-local from command line or programmatically.
 
-### Command line:
+## Command line:
 
 ```bash
 Usage: 
@@ -20,8 +26,10 @@ Installs a package from the filesystem into the current directory.
 
 Options:
 
+```
  -h, --help      Output this help
  -S, --save      Saved packages will appear in your package.json under "localDependencies"
+```
 
 Examples:
  install-local
@@ -36,65 +44,10 @@ Examples:
 Install the package located in the parent folder into the current directory.
 * `install-local --save ../sibling ../sibling2`
 Install the packages in 2 sibling directories into the current directory.
-* `install-local`
+* `install-local --help`
 Print this help
 
-### From node:
-
-_Typings are included for all your TypeScript programmers out there_
-
-```javascript
-const { LocalInstaller, execute, progressBar, saveIfNeeded, readLocalDependencies } = require('install-local');
-```
-
-#### Use the CLI programmatically
-
-Execute the cli functions with the `execute` function. It returns a promise:
-
-```javascript
-execute(['--save', '../sibling-dependency', '../sibling-dependency2'])
-    .then(() => console.log('done'))
-    .catch(err => console.error('err'));
-```
-
-#### Install dependencies locally
-
-Use the `LocalInstaller` to install local dependencies into multiple directories.
-
-For example:
-
-```javascript
-const localInstaller = new LocalInstaller({
-   /*1*/ '.': ['../sibling1', '../sibling2'],
-   /*2*/ '../dependant': ['.']
-});
-localInstaller.install()
-    .then(() => console.log('done'))
-    .catch(err => console.error(err));
-```
-
-1. This will install packages located in the directories "sibling1" and "sibling2" next to the current working directory into the package located in the current working directory (`'.'`) 
-2. This will install the package located in the current working directory (`'.'`) into the package located in 
-the "dependant" directory located next to the current working directory.
-
-Construct the `LocalInstall` by using an object. The properties of this object are the relative package locations to install into. The array values are the packages to be installed. Use the `install()` method to install, returns a promise.
-
-If you want the progress bar like the CLI does: use `progressBar(localInstaller)`; 
-
-#### Roll your own
-
-Putting it all together:
-
-```javascript
-readLocalDependencies([]).then(localDependencies => {
-    const installer = new LocalInstaller({ '.': localDependencies });
-    progressBar(installer);
-    installer.install()
-        .then(saveIfNeeded(options));
-})
-```
-
-**Note:** this is what the command line interface does more or less.
+See [Programmatically](#Programmatically) to see how use `local-install` from node.
 
 ## Why?
 
@@ -123,3 +76,60 @@ You could use `npm install file:..` versions of npm prior to version 5. It insta
 ## How to guarantee a production-like install
 
 To guarantee the production-like installation of your dependency, `install-local` uses [`npm pack`](https://docs.npmjs.com/cli/pack) and [`npm install <tarball file>](https://docs.npmjs.com/cli/install) under the hood. This is as close as production-like as it gets.
+
+## Programmatically
+
+_Typings are included for all your TypeScript programmers out there_
+
+```javascript
+const { LocalInstaller, execute, progressBar, saveIfNeeded, readLocalDependencies } = require('install-local');
+```
+
+### Use the CLI programmatically
+
+Execute the cli functions with the `execute` function. It returns a promise:
+
+```javascript
+execute(['--save', '../sibling-dependency', '../sibling-dependency2'])
+    .then(() => console.log('done'))
+    .catch(err => console.error('err'));
+```
+
+### Install dependencies locally
+
+Use the `LocalInstaller` to install local dependencies into multiple directories.
+
+For example:
+
+```javascript
+const localInstaller = new LocalInstaller({
+   /*1*/ '.': ['../sibling1', '../sibling2'],
+   /*2*/ '../dependant': ['.']
+});
+localInstaller.install()
+    .then(() => console.log('done'))
+    .catch(err => console.error(err));
+```
+
+1. This will install packages located in the directories "sibling1" and "sibling2" next to the current working directory into the package located in the current working directory (`'.'`) 
+2. This will install the package located in the current working directory (`'.'`) into the package located in 
+the "dependant" directory located next to the current working directory.
+
+Construct the `LocalInstall` by using an object. The properties of this object are the relative package locations to install into. The array values are the packages to be installed. Use the `install()` method to install, returns a promise.
+
+If you want the progress bar like the CLI does: use `progressBar(localInstaller)`; 
+
+### Roll your own
+
+Putting it all together:
+
+```javascript
+readLocalDependencies([]).then(localDependencies => {
+    const installer = new LocalInstaller({ '.': localDependencies });
+    progressBar(installer);
+    installer.install()
+        .then(saveIfNeeded(options));
+})
+```
+
+**Note:** this is what the command line interface does more or less.
