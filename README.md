@@ -32,14 +32,8 @@ Options:
 ```
 
 Examples:
- install-local
-   install the "localDependencies" of your current package
- install-local ..
-   install the package located in the parent folder into the current directory.
- install-local --save ../sibling ../sibling2
-   install the packages of 2 sibling directories into the current directory and save them to "localDependencies" in your package.json file.
-
-Examples:
+* `install-local`
+Install the "localDependencies" of your current package
 * `install-local ..`
 Install the package located in the parent folder into the current directory.
 * `install-local --save ../sibling ../sibling2`
@@ -47,7 +41,7 @@ Install the packages in 2 sibling directories into the current directory.
 * `install-local --help`
 Print this help
 
-See [Programmatically](#programmatically) to see how use `local-install` from node.
+See [Programmatically](#programmatically) to see how use `install-local` from node.
 
 ## Why?
 
@@ -82,7 +76,7 @@ To guarantee the production-like installation of your dependency, `install-local
 _Typings are included for all your TypeScript programmers out there_
 
 ```javascript
-const { LocalInstaller, execute, progressBar, saveIfNeeded, readLocalDependencies } = require('install-local');
+const { LocalInstaller, execute, progress, saveIfNeeded, readLocalDependencies } = require('install-local');
 ```
 
 ### Use the CLI programmatically
@@ -117,7 +111,7 @@ the "dependant" directory located next to the current working directory.
 
 Construct the `LocalInstall` by using an object. The properties of this object are the relative package locations to install into. The array values are the packages to be installed. Use the `install()` method to install, returns a promise.
 
-If you want the progress bar like the CLI does: use `progressBar(localInstaller)`; 
+If you want the progress reporting like the CLI has: use `progress(localInstaller)`; 
 
 ### Roll your own
 
@@ -126,7 +120,7 @@ Putting it all together:
 ```javascript
 readLocalDependencies([]).then(localDependencies => {
     const installer = new LocalInstaller({ '.': localDependencies });
-    progressBar(installer);
+    progress(installer);
     installer.install()
         .then(saveIfNeeded(options));
 })

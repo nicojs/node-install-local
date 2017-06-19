@@ -27,7 +27,7 @@ describe('LocalInstaller install', () => {
 
         beforeEach(() => {
             stubPackageJson('/a', 'b', 'c', 'd', '/e');
-            execStub.resolves();
+            execStub.resolves(['stdout', 'stderr']);
             unlinkStub.resolves();
         });
 

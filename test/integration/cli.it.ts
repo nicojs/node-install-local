@@ -9,7 +9,7 @@ import { PackageJson } from './../../src/index';
 
 const installLocal = path.resolve('bin', 'install-local');
 
-describe('local-install cli given 3 packages', () => {
+describe('install-local cli given 3 packages', () => {
 
     let packages: {
         one: PackageHelper;

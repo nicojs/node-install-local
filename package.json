@@ -39,7 +39,6 @@
     "@types/mocha": "^2.2.41",
     "@types/mz": "0.0.31",
     "@types/node": "^7.0.26",
-    "@types/progress": "^2.0.0",
     "@types/rimraf": "0.0.28",
     "@types/sinon": "^2.2.2",
     "@types/sinon-chai": "^2.7.28",
@@ -54,7 +53,6 @@
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "mz": "^2.6.0",
-    "progress": "^2.0.0"
+    "mz": "^2.6.0"
   }
 }

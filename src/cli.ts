@@ -1,4 +1,4 @@
-import { LocalInstaller, progressBar, readLocalDependencies } from './index';
+import { LocalInstaller, progress, readLocalDependencies } from './index';
 import { saveIfNeeded } from './index';
 
 export function execute(argv: string[]) {
@@ -38,7 +38,7 @@ export function execute(argv: string[]) {
     } else {
         return readLocalDependencies(argumentDependencies).then(localDependencies => {
             const installer = new LocalInstaller({ '.': localDependencies });
-            progressBar(installer);
+            progress(installer);
             installer.install()
                 .then(saveIfNeeded(options));
         });

@@ -1,5 +1,5 @@
 export { LocalInstaller } from './LocalInstaller';
-export { progressBar } from './progressBar';
+export { progress } from './progress';
 export { saveIfNeeded } from './save';
 export { readLocalDependencies } from './readLocalDependencies';
 export { execute } from './cli';

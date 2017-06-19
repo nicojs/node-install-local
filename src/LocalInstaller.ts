@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import * as _ from 'lodash';
-import * as childProcess from 'mz/child_process';
+import { exec } from 'mz/child_process';
 import * as fs from 'mz/fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -25,21 +25,21 @@ export class LocalInstaller extends EventEmitter {
 
     public on(event: 'install_targets_identified', listener: (installTargets: InstallTarget[]) => void): void;
     public on(event: 'install_start', listener: (toInstall: ListByPackage) => void): this;
-    public on(event: 'installed', listener: (target: InstallTarget) => void): this;
+    public on(event: 'installed', listener: (pkg: string, stdout: string, stderr: string) => void): this;
     public on(event: 'packing_start', listener: (allSources: string[]) => void): this;
     public on(event: 'packed', listener: (location: string) => void): this;
     public on(event: 'packing_end' | 'install_end', listener: () => void): this;
-    public on(event: string | symbol, listener: Function): this {
+    public on(event: string, listener: Function): this {
         return super.on(event, listener);
     }
 
     public emit(event: 'install_targets_identified', installTargets: InstallTarget[]): boolean;
     public emit(event: 'install_start', toInstall: ListByPackage): boolean;
-    public emit(event: 'installed', target: InstallTarget): boolean;
+    public emit(event: 'installed', pkg: string, stdout: string, stderr: string): boolean;
     public emit(event: 'packing_start', allSources: string[]): boolean;
     public emit(event: 'packed', location: string): boolean;
     public emit(event: 'packing_end' | 'install_end'): boolean;
-    public emit(event: string | symbol, ...args: any[]): boolean {
+    public emit(event: string, ...args: any[]): boolean {
         return super.emit(event, ...args);
     }
 
@@ -60,8 +60,8 @@ export class LocalInstaller extends EventEmitter {
 
     private installOne(target: InstallTarget): Promise<void> {
         const toInstall = target.sources.map(source => resolvePackFile(source.packageJson)).join(' ');
-        return exec(target.directory, `npm i --no-save ${toInstall}`)
-            .then(() => void this.emit('installed', target));
+        return exec(`npm i --no-save ${toInstall}`, { cwd: target.directory }).then(([stdout, stderr]) =>
+            void this.emit('installed', target.packageJson.name, stdout.toString(), stderr.toString()));
     }
 
     private resolvePackages(): Promise<PackageByDirectory> {
@@ -97,7 +97,8 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private packOne(directory: string): Promise<void> {
-        return exec(os.tmpdir(), `npm pack ${directory}`).then(() => void this.emit('packed', directory));
+        return exec(`npm pack ${directory}`, { cwd: os.tmpdir() })
+            .then(() => void this.emit('packed', directory));
     }
 
     private removeAllPackedTarballs(allSources: string[], packages: PackageByDirectory): Promise<void[]> {
@@ -117,10 +118,6 @@ export function resolve(packagesByTarget: ListByPackage) {
         resolvedPackages[path.resolve(localTarget)] = _.uniq(packagesByTarget[localTarget].map(_ => path.resolve(_)));
     });
     return resolvedPackages;
-}
-
-export function exec(cwd: string, command: string) {
-    return childProcess.exec(command, { cwd });
 }
 
 function readPackageJson(from: string): Promise<PackageJson> {

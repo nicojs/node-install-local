@@ -7,6 +7,13 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceRoot}/bin/install-local",
+            "cwd": "${workspaceRoot}/../../stryker-mutator/stryker/integrationTest"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "All Tests",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [

@@ -1,9 +1,10 @@
 import { expect } from 'chai';
+import * as os from 'os';
 import * as sinon from 'sinon';
-import { progressBar } from '../../src/progressBar';
+import { progress } from '../../src/progress';
 import { LocalInstaller } from './../../src/LocalInstaller';
 
-describe('progressBar', () => {
+describe('progress', () => {
 
     let eventEmitter: LocalInstaller;
     let sandbox: sinon.SinonSandbox;
@@ -11,10 +12,9 @@ describe('progressBar', () => {
 
     beforeEach(() => {
         sandbox = sinon.sandbox.create();
-        sandbox.useFakeTimers();
         streamStub = stubStream();
         eventEmitter = new LocalInstaller({});
-        progressBar(eventEmitter, streamStub);
+        progress(eventEmitter, streamStub);
     });
 
     describe('on "install_targets_identified" with 2 install targets', () => {
@@ -37,47 +37,52 @@ describe('progressBar', () => {
             }]);
         });
         it('should tick on "packing_start"', () => {
-            eventEmitter.emit('packing_start', []);
-            fastForward();
-            expect(streamStub.write).to.have.been.calledWith('install-local: [=--------] packing');
+            eventEmitter.emit('packing_start', ['a', 'b']);
+            expect(streamStub.write).to.have.been.calledWith('[install-local] packing - 0/2');
         });
 
         it('should tick on "packed"', () => {
-            eventEmitter.emit('packed', 'asd');
-            fastForward();
-            expect(streamStub.write).to.have.been.calledWith('install-local: [=--------] packing(asd)');
+            eventEmitter.emit('packing_start', ['a', 'b']);
+            eventEmitter.emit('packed', 'a');
+            expect((streamStub as any).clearLine).to.have.been.called;
+            expect((streamStub as any).cursorTo).to.have.been.calledWith(0);
+            expect(streamStub.write).to.have.been.calledWith('[install-local] packing - 1/2');
+            expect(streamStub.write).to.have.been.calledWith(' (a)');
+        });
+
+        it('should not clear line when not a TTY on "packed"', () => {
+            streamStub.isTTY = undefined;
+            eventEmitter.emit('packing_start', ['a', 'b']);
+            eventEmitter.emit('packed', 'a');
+            expect((streamStub as any).clearLine).to.not.have.been.called;
+            expect((streamStub as any).cursorTo).to.not.have.been.called;
+            expect(streamStub.write).to.have.been.calledWith(os.EOL);
         });
 
         it('should not tick on "packing_end"', () => {
+            eventEmitter.emit('packing_start', ['a', 'b']);
             eventEmitter.emit('packing_end');
-            fastForward();
-            expect(streamStub.write).to.not.have.been.called;
+            expect((streamStub as any).clearLine).to.have.been.called;
+            expect((streamStub as any).cursorTo).to.have.been.calledWith(0);
         });
 
         it('should tick on "install_start"', () => {
-            eventEmitter.emit('install_start', {});
-            fastForward();
-            expect(streamStub.write).to.have.been.calledWith('install-local: [=--------] installing');
+            eventEmitter.emit('install_start', { a: ['b'], c: ['d'] });
+            expect(streamStub.write).to.have.been.calledWith(`[install-local] installing into a, c${os.EOL}`);
         });
 
         it('should tick on "installed"', () => {
-            eventEmitter.emit('installed', {
-                directory: 'a', packageJson: { name: 'a', version: 'a' }, sources: [
-                    createPackage('b'),
-                    createPackage('c')
-                ]
-            });
-            fastForward();
-            expect(streamStub.write).to.have.been.calledWith('install-local: [==-------] installing(a)');
+            eventEmitter.emit('installed', 'a', 'stdout', 'stderr');
+            expect(streamStub.write).to.have.been.calledWith(`[install-local] a installed${os.EOL}`);
+            expect(streamStub.write).to.have.been.calledWith('stdout');
+            expect(streamStub.write).to.have.been.calledWith('stderr');
         });
 
         it('should terminate on "install_end"', () => {
             eventEmitter.emit('install_end');
-            fastForward();
-            expect(streamStub.write).to.have.been.calledWith('\n');
+            expect(streamStub.write).to.have.been.calledWith(`[install-local] Done${os.EOL}`);
         });
     });
-    const fastForward = () => sandbox.clock.tick(50);
 });
 
 const createPackage = (name: string) => ({
