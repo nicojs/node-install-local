@@ -5,3 +5,4 @@ src/**/*.map
 src/**/*.ts
 !src/**/*.d.ts
 !readme.md
+!CHANGELOG.md
