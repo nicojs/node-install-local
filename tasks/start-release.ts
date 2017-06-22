@@ -42,5 +42,5 @@ conventionalRecommendedBump({
     const nextVersion = semver.inc(packageJson.version, result.releaseType);
     console.log(`[release]: New ${result.releaseType} version will be ${nextVersion} (based on semver and your semantic changelog)`);
 
-    exec(`npm version ${nextVersion} -m "chore: release v${nextVersion}"`);
+    execStreaming(`npm version ${nextVersion} -m "chore: release v${nextVersion}"`);
 });
