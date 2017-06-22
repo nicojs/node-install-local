@@ -110,7 +110,16 @@ export class LocalInstaller extends EventEmitter {
 }
 
 function resolvePackFile(pkg: PackageJson) {
-    return path.resolve(os.tmpdir(), `${pkg.name}-${pkg.version}.tgz`);
+    // Don't forget about scoped packages
+    const scopeIndex = pkg.name.indexOf('@');
+    const slashIndex = pkg.name.indexOf('/');
+    if (scopeIndex === 0 && slashIndex > 0) {
+        // @s/b -> s-b-x.x.x.tgz
+        return path.resolve(os.tmpdir(), `${pkg.name.substr(1, slashIndex - 1)}-${pkg.name.substr(slashIndex + 1)}-${pkg.version}.tgz`);
+    } else {
+        // b -> b-x.x.x.tgz
+        return path.resolve(os.tmpdir(), `${pkg.name}-${pkg.version}.tgz`);
+    }
 }
 
 export function resolve(packagesByTarget: ListByPackage) {

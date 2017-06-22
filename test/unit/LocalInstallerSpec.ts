@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as child_process from 'mz/child_process';
 import * as fs from 'mz/fs';
 import * as os from 'os';
-import { basename, resolve as r } from 'path';
+import { resolve } from 'path';
 import * as sinon from 'sinon';
 import { LocalInstaller } from './../../src/LocalInstaller';
 
@@ -14,7 +14,6 @@ describe('LocalInstaller install', () => {
     let unlinkStub: sinon.SinonStub;
 
     beforeEach(() => {
-        sut = new LocalInstaller({ '/a': ['b', 'c'], 'd': ['/e'] });
         sandbox = sinon.sandbox.create();
         execStub = sandbox.stub(child_process, 'exec');
         unlinkStub = sandbox.stub(fs, 'unlink');
@@ -23,27 +22,28 @@ describe('LocalInstaller install', () => {
 
     afterEach(() => sandbox.restore());
 
-    describe('happy flow', () => {
+    describe('with some normal packages', () => {
 
         beforeEach(() => {
-            stubPackageJson('/a', 'b', 'c', 'd', '/e');
+            sut = new LocalInstaller({ '/a': ['b', 'c'], 'd': ['/e'] });
+            stubPackageJson({ '/a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', '/e': 'e' });
             execStub.resolves(['stdout', 'stderr']);
             unlinkStub.resolves();
         });
 
         it('should pack correct packages', async () => {
             await sut.install();
-            expect(execStub).calledWith(`npm pack ${r('b')}`, { cwd: os.tmpdir() });
-            expect(execStub).calledWith(`npm pack ${r('c')}`, { cwd: os.tmpdir() });
-            expect(execStub).calledWith(`npm pack ${r('/e')}`, { cwd: os.tmpdir() });
+            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: os.tmpdir() });
+            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: os.tmpdir() });
+            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: os.tmpdir() });
         });
 
         it('should install correct packages', async () => {
             await sut.install();
-            expect(execStub).calledWith(`npm i --no-save ${r(os.tmpdir(), 'b-0.0.1.tgz')} ${r(os.tmpdir(), 'c-0.0.2.tgz')}`,
-                { cwd: r('/a') });
-            expect(execStub).calledWith(`npm i --no-save ${r(os.tmpdir(), 'e-0.0.4.tgz')}`,
-                { cwd: r('d') });
+            expect(execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')} ${tmp('c-0.0.2.tgz')}`,
+                { cwd: resolve('/a') });
+            expect(execStub).calledWith(`npm i --no-save ${tmp('e-0.0.4.tgz')}`,
+                { cwd: resolve('d') });
         });
 
         it('should emit all events', async () => {
@@ -72,6 +72,20 @@ describe('LocalInstaller install', () => {
         });
     });
 
+    describe('with scoped packages', () => {
+        beforeEach(() => {
+            sut = new LocalInstaller({ '/a': ['b'] });
+            stubPackageJson({ '/a': 'a', 'b': '@s/b' });
+            execStub.resolves(['stdout', 'stderr']);
+            unlinkStub.resolves();
+        });
+
+        it('should install scoped packages', async () => {
+            await sut.install();
+            expect(execStub).calledWith(`npm i --no-save ${tmp('s-b-0.0.1.tgz')}`);
+        });
+    });
+
     describe('when readFile errors', () => {
         it('should propagate the error', () => {
             readFileStub.rejects(new Error('file error'));
@@ -82,7 +96,8 @@ describe('LocalInstaller install', () => {
     describe('when packing errors', () => {
 
         beforeEach(() => {
-            stubPackageJson('/a', 'b', 'c', 'd', '/e');
+            sut = new LocalInstaller({ '/a': ['b'] });
+            stubPackageJson({ '/a': 'a', 'b': 'b' });
         });
 
         it('should propagate the error', () => {
@@ -93,8 +108,9 @@ describe('LocalInstaller install', () => {
 
     describe('when installing errors', () => {
         beforeEach(() => {
-            stubPackageJson('/a', 'b', 'c', 'd', '/e');
-            stubPack('b', 'c', '/e');
+            sut = new LocalInstaller({ '/a': ['b'] });
+            stubPackageJson({ '/a': 'a', 'b': 'b' });
+            stubPack('b');
         });
 
         it('should propagate the error', () => {
@@ -103,10 +119,12 @@ describe('LocalInstaller install', () => {
         });
     });
 
-    const stubPackageJson = (...directories: string[]) => {
-        directories.forEach((directory, i) => {
-            readFileStub.withArgs(r(directory, 'package.json')).resolves(JSON.stringify({
-                name: basename(directory),
+    const tmp = (file: string) => resolve(os.tmpdir(), file);
+
+    const stubPackageJson = (recipe: { [directory: string]: string }) => {
+        Object.keys(recipe).forEach((directory, i) => {
+            readFileStub.withArgs(resolve(directory, 'package.json')).resolves(JSON.stringify({
+                name: recipe[directory],
                 version: `0.0.${i}`
             }));
         });
@@ -114,7 +132,7 @@ describe('LocalInstaller install', () => {
 
     const stubPack = (...directories: string[]) => {
         directories.forEach(directory => {
-            execStub.withArgs(`npm pack ${r(directory)}`).resolves();
+            execStub.withArgs(`npm pack ${resolve(directory)}`).resolves();
         });
     };
 });

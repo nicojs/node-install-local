@@ -69,6 +69,15 @@ describe('install-local cli given 3 packages', () => {
         const installed = await packages.one.readdir('node_modules');
         expect(installed).to.deep.eq(['two']);
     });
+
+    it('should also work for scoped packages (https://github.com/nicojs/node-install-local/issues/1)', async () => {
+        packages.one.packageJson.localDependencies = {
+            two: '../two'
+        };
+        packages.two.packageJson.name = '@scoped/two';
+        await Promise.all([packages.one.writePackage(), packages.two.writePackage()]);
+        await exec(`node ${installLocal}`, { cwd: packages.one.directory });
+    });
 });
 
 const rm = (directory: string) => new Promise((res, rej) => rimraf(directory, err => {
