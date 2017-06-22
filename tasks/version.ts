@@ -9,8 +9,8 @@ conventionalChangelog({
 })
     .pipe(changelogStream) // or any writable stream
     .on('finish', () => {
-        console.log('[release] git add CHANGELOG.md');
-        execSync('git add CHANGELOG.md');
+        setTimeout(() => {
+            console.log('[release] git add CHANGELOG.md');
+            execSync('git add CHANGELOG.md');
+        }, 2000);
     });
-
-// process.exit(1);
