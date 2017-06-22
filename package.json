@@ -13,7 +13,7 @@
     "start": "tsc -w",
     "release": "ts-node tasks/start-release.ts",
     "version": "ts-node tasks/version.ts",
-    "post": "ts-node tasks/post-version.ts"
+    "postversion": "ts-node tasks/post-version.ts"
   },
   "bin": {
     "install-local": "bin/install-local"
