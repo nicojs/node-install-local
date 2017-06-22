@@ -71,6 +71,11 @@ describe('progress', () => {
             expect(streamStub.write).to.have.been.calledWith(`[install-local] installing into a, c${os.EOL}`);
         });
 
+        it('should print that there is nothing todo on "install_start" without targets', () => {
+            eventEmitter.emit('install_start', {});
+            expect(streamStub.write).to.have.been.calledWith(`[install-local] nothing to install${os.EOL}`);
+        });
+
         it('should tick on "installed"', () => {
             eventEmitter.emit('installed', 'a', 'stdout', 'stderr');
             expect(streamStub.write).to.have.been.calledWith(`[install-local] a installed${os.EOL}`);

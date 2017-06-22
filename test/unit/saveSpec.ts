@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as sinon from 'sinon';
 import { saveIfNeeded } from '../../src/save';
 import { InstallTarget } from './../../src/index';
+import { Options } from './../../src/Options';
 
 describe('saveIfNeeded', () => {
 
@@ -35,7 +36,7 @@ describe('saveIfNeeded', () => {
 
     describe('when no option to save', () => {
         beforeEach(() => {
-            sut = saveIfNeeded([]);
+            sut = saveIfNeeded(new Options([]));
         });
 
         it('should not do anything', async () => {
@@ -47,7 +48,7 @@ describe('saveIfNeeded', () => {
     describe('when --save is in the options', () => {
 
         beforeEach(() => {
-            sut = saveIfNeeded(['--save']);
+            sut = saveIfNeeded(new Options(['node', 'install-local', '--save']));
         });
 
         it('should write "localDependencies" to package.json', async () => {
@@ -71,16 +72,4 @@ describe('saveIfNeeded', () => {
             expect(writeFileStub).to.not.have.been.called;
         });
     });
-
-    describe('when -S is in the options', () => {
-        beforeEach(() => {
-            sut = saveIfNeeded(['-S']);
-        });
-
-        it('should write "localDependencies" to package.json', async () => {
-            await sut(input);
-            expect(writeFileStub).to.have.been.calledOnce;
-        });
-    });
-
 });

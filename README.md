@@ -20,16 +20,19 @@ You can use install-local from command line or programmatically.
 Usage: 
 $ install-local                                       # 1
 $ install-local [options] <directory>[ <directory>]   # 2
+$ install-local --target-siblings                     # 3
 ```
 
 Installs a package from the filesystem into the current directory.
 
 Options:
 
-```
- -h, --help      Output this help
- -S, --save      Saved packages will appear in your package.json under "localDependencies"
-```
+
+* `-h, --help`: Output this help
+* `-S, --save`: Saved packages will appear in your package.json under "localDependencies"
+* `-T, --target-siblings`: Instead of installing into this package, this package gets installed into sibling packages
+which depend on this package by putting it in the "localDependencies".
+Useful in a [lerna](https://github.com/lerna/lerna) style monorepo.
 
 Examples:
 * `install-local`
@@ -76,17 +79,28 @@ To guarantee the production-like installation of your dependency, `install-local
 _Typings are included for all your TypeScript programmers out there_
 
 ```javascript
-const { LocalInstaller, execute, progress, saveIfNeeded, readLocalDependencies } = require('install-local');
+const { cli, execute, Options, progress, LocalInstaller} = require('install-local');
 ```
 
 ### Use the CLI programmatically
 
-Execute the cli functions with the `execute` function. It returns a promise:
+Execute the cli functions with the `cli` function. It returns a promise:
 
 ```javascript
-execute(['--save', '../sibling-dependency', '../sibling-dependency2'])
+cli(['node', 'install-local', '--save', '../sibling-dependency', '../sibling-dependency2'])
     .then(() => console.log('done'))
     .catch(err => console.error('err'));
+```
+
+Or a slightly cleaner api:
+
+```javascript
+execute({ 
+    validate: () => true, 
+    dependencies: ['../sibling-dependency', '../sibling-dependency2'], 
+    save: true, 
+    targetSiblings: false 
+})
 ```
 
 ### Install dependencies locally
@@ -100,6 +114,7 @@ const localInstaller = new LocalInstaller({
    /*1*/ '.': ['../sibling1', '../sibling2'],
    /*2*/ '../dependant': ['.']
 });
+progress(localInstaller);
 localInstaller.install()
     .then(() => console.log('done'))
     .catch(err => console.error(err));
@@ -112,18 +127,3 @@ the "dependant" directory located next to the current working directory.
 Construct the `LocalInstall` by using an object. The properties of this object are the relative package locations to install into. The array values are the packages to be installed. Use the `install()` method to install, returns a promise.
 
 If you want the progress reporting like the CLI has: use `progress(localInstaller)`; 
-
-### Roll your own
-
-Putting it all together:
-
-```javascript
-readLocalDependencies([]).then(localDependencies => {
-    const installer = new LocalInstaller({ '.': localDependencies });
-    progress(installer);
-    installer.install()
-        .then(saveIfNeeded(options));
-})
-```
-
-**Note:** this is what the command line interface does more or less.

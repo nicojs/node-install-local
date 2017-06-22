@@ -1,8 +1,11 @@
-export { LocalInstaller } from './LocalInstaller';
+export { ListByPackage, LocalInstaller } from './LocalInstaller';
 export { progress } from './progress';
 export { saveIfNeeded } from './save';
-export { readLocalDependencies } from './readLocalDependencies';
-export { execute } from './cli';
+export { currentDirectoryInstall } from './currentDirectoryInstall';
+export { siblingInstall } from './siblingInstall';
+export { execute } from './executor';
+export { cli } from './cli';
+export { Options } from './Options';
 
 export interface Package {
     directory: string;

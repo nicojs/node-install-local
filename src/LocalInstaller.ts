@@ -4,6 +4,7 @@ import { exec } from 'mz/child_process';
 import * as fs from 'mz/fs';
 import * as os from 'os';
 import * as path from 'path';
+import { readPackageJson } from './helpers';
 import { InstallTarget, PackageJson } from './index';
 
 interface PackageByDirectory {
@@ -118,10 +119,6 @@ export function resolve(packagesByTarget: ListByPackage) {
         resolvedPackages[path.resolve(localTarget)] = _.uniq(packagesByTarget[localTarget].map(_ => path.resolve(_)));
     });
     return resolvedPackages;
-}
-
-function readPackageJson(from: string): Promise<PackageJson> {
-    return fs.readFile(path.join(from, 'package.json'), 'utf8').then(content => JSON.parse(content) as PackageJson);
 }
 
 function del(file: string): Promise<void> {

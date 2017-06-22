@@ -9,7 +9,11 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceRoot}/bin/install-local",
-            "cwd": "${workspaceRoot}/../../stryker-mutator/stryker/integrationTest"
+            "args": [
+                "--target-siblings"
+            ],
+            "cwd": "${workspaceRoot}/../../stryker-mutator/stryker/packages/stryker-api",
+            "sourceMaps": true
         },
         {
             "type": "node",

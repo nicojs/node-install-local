@@ -1,10 +1,10 @@
 import * as fs from 'mz/fs';
 import * as path from 'path';
-import { Dependencies, InstallTarget, Package } from './index';
+import { Dependencies, InstallTarget, Options, Package } from './index';
 
-export function saveIfNeeded(options: string[]): (targets: InstallTarget[]) => Promise<void> {
+export function saveIfNeeded(options: Options): (targets: InstallTarget[]) => Promise<void> {
     return targets => {
-        if (options.indexOf('-S') >= 0 || options.indexOf('--save') >= 0) {
+        if (options.save) {
             return Promise.all(targets.map(save)).then(() => undefined);
         } else {
             return Promise.resolve();

@@ -37,8 +37,14 @@ export function progress(installer: LocalInstaller, stream = process.stdout) {
     installer.on('packing_start', _ => progressKeeper = new ProgressKeeper(stream, '[install-local] packing - :count/:max', _.length));
     installer.on('packed', pkg => progressKeeper.tick(path.basename(pkg)));
     installer.on('packing_end', () => progressKeeper.terminate());
-    installer.on('install_start', toInstall =>
-        stream.write(`[install-local] installing into ${Object.keys(toInstall).join(', ')}${os.EOL}`));
+    installer.on('install_start', toInstall => {
+        const installPhrase = Object.keys(toInstall).map(_ => path.basename(_)).join(', ');
+        if (installPhrase.length) {
+            stream.write(`[install-local] installing into ${installPhrase}${os.EOL}`);
+        }else {
+            stream.write(`[install-local] nothing to install${os.EOL}`);
+        }
+    });
     installer.on('installed', (pkg, stdout, stderr) => {
         stream.write(`[install-local] ${pkg} installed${os.EOL}`);
         stream.write(stdout);

@@ -59,6 +59,16 @@ describe('install-local cli given 3 packages', () => {
         const installed = await packages.one.readdir('node_modules');
         expect(installed).to.deep.eq(['two']);
     });
+
+    it('should install into siblings if --target-siblings is given', async () => {
+        packages.one.packageJson.localDependencies = {
+            two: '../two'
+        };
+        await packages.one.writePackage();
+        await exec(`node ${installLocal} --target-siblings`, { cwd: packages.two.directory });
+        const installed = await packages.one.readdir('node_modules');
+        expect(installed).to.deep.eq(['two']);
+    });
 });
 
 const rm = (directory: string) => new Promise((res, rej) => rimraf(directory, err => {
