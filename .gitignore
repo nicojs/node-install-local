@@ -1,4 +1,7 @@
+.stryker-temp
+reports
 node_modules
-*.js
+src/**/*.js
+test/**/*.js
 *.map
 *.d.ts

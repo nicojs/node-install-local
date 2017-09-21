@@ -18,6 +18,17 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Stryker",
+            "program": "${workspaceRoot}/node_modules/stryker/src/stryker-cli",
+            "args": [
+                "run"
+            ],
+            "console": "integratedTerminal",
+            "sourceMaps": true
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "All Tests",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
