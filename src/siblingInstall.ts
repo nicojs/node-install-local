@@ -16,7 +16,7 @@ function readSiblingTargets() {
         .then(dirs => Promise.all(
             dirs.map(directory => readPackageJson(directory)
                 .then(packageJson => ({ directory, packageJson }))
-                .catch(_ => null))
+                .catch(() => null))
         ))
         .then(filterTruthy);
 }

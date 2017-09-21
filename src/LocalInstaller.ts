@@ -125,7 +125,7 @@ function resolvePackFile(pkg: PackageJson) {
 export function resolve(packagesByTarget: ListByPackage) {
     const resolvedPackages: ListByPackage = {};
     Object.keys(packagesByTarget).forEach(localTarget => {
-        resolvedPackages[path.resolve(localTarget)] = _.uniq(packagesByTarget[localTarget].map(_ => path.resolve(_)));
+        resolvedPackages[path.resolve(localTarget)] = _.uniq(packagesByTarget[localTarget].map(pkg => path.resolve(pkg)));
     });
     return resolvedPackages;
 }
