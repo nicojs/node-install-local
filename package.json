@@ -60,7 +60,7 @@
     "stryker-html-reporter": "^0.8.0",
     "stryker-mocha-framework": "^0.5.0",
     "stryker-mocha-runner": "^0.8.1",
-    "stryker-typescript": "0.0.1",
+    "stryker-typescript": "0.0.2",
     "ts-node": "^3.1.0",
     "tslint": "^5.4.2",
     "typescript": "^2.5.2"
