@@ -41,7 +41,7 @@ export function progress(installer: LocalInstaller, stream = process.stdout) {
         const installPhrase = Object.keys(toInstall).map(_ => path.basename(_)).join(', ');
         if (installPhrase.length) {
             stream.write(`[install-local] installing into ${installPhrase}${os.EOL}`);
-        }else {
+        } else {
             stream.write(`[install-local] nothing to install${os.EOL}`);
         }
     });
