@@ -1,4 +1,4 @@
-.stryker-temp
+.stryker-tmp
 reports
 node_modules
 src/**/*.js

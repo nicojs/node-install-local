@@ -60,7 +60,7 @@
     "stryker-mocha-runner": "^0.10.1",
     "stryker-typescript": "0.8.0",
     "tslint": "^5.4.2",
-    "typescript": "^2.5.2"
+    "typescript": "^2.6.2"
   },
   "dependencies": {
     "lodash": "^4.17.4",

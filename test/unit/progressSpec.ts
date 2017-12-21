@@ -7,11 +7,9 @@ import { LocalInstaller } from './../../src/LocalInstaller';
 describe('progress', () => {
 
     let eventEmitter: LocalInstaller;
-    let sandbox: sinon.SinonSandbox;
     let streamStub: NodeJS.Socket;
 
     beforeEach(() => {
-        sandbox = sinon.sandbox.create();
         streamStub = stubStream();
         eventEmitter = new LocalInstaller({});
         progress(eventEmitter, streamStub as any);

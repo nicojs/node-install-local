@@ -12,14 +12,13 @@ describe('siblingInstall', () => {
     let readdirStub: sinon.SinonStub;
     let readPackageJson: sinon.SinonStub;
     let localInstallStub: { install: sinon.SinonStub };
-    let progressStub: sinon.SinonStub;
 
     beforeEach(() => {
         sandbox = sinon.sandbox.create();
         localInstallStub = { install: sandbox.stub() };
         readdirStub = sandbox.stub(fs, 'readdir');
         readPackageJson = sandbox.stub(helpers, 'readPackageJson');
-        progressStub = sandbox.stub(index, 'progress');
+        sandbox.stub(index, 'progress');
         sandbox.stub(index, 'LocalInstaller').returns(localInstallStub);
     });
 
