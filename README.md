@@ -72,7 +72,7 @@ You could use `npm install file:..` versions of npm prior to version 5. It insta
 
 ## How to guarantee a production-like install
 
-To guarantee the production-like installation of your dependency, `install-local` uses [`npm pack`](https://docs.npmjs.com/cli/pack) and [`npm install <tarball file>](https://docs.npmjs.com/cli/install) under the hood. This is as close as production-like as it gets.
+To guarantee the production-like installation of your dependency, `install-local` uses [`npm pack`](https://docs.npmjs.com/cli/pack) and [`npm install <tarball file>`](https://docs.npmjs.com/cli/install) under the hood. This is as close as production-like as it gets.
 
 ## Programmatically
 
