@@ -30,7 +30,7 @@ export class LocalInstaller extends EventEmitter {
     public on(event: 'packing_start', listener: (allSources: string[]) => void): this;
     public on(event: 'packed', listener: (location: string) => void): this;
     public on(event: 'packing_end' | 'install_end', listener: () => void): this;
-    public on(event: string, listener: Function): this {
+    public on(event: string, listener: (...args: any[]) => void): this {
         return super.on(event, listener);
     }
 

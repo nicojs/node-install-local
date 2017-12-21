@@ -14,7 +14,7 @@ describe('progress', () => {
         sandbox = sinon.sandbox.create();
         streamStub = stubStream();
         eventEmitter = new LocalInstaller({});
-        progress(eventEmitter, streamStub);
+        progress(eventEmitter, streamStub as any);
     });
 
     describe('on "install_targets_identified" with 2 install targets', () => {
