@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/nicojs/node-install-local.svg?branch=master)](https://travis-ci.org/nicojs/node-install-local)
+[![Stryker report](https://badge.stryker-mutator.io/github.com/nicojs/node-install-local/master)](https://dashboard.stryker-mutator.io/)
 
 # Install local
 
