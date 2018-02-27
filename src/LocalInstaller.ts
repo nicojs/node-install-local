@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import * as _ from 'lodash';
-import { exec } from 'mz/child_process';
+import { exec, ExecOptions } from 'mz/child_process';
 import * as fs from 'mz/fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -11,6 +11,14 @@ interface PackageByDirectory {
     [directory: string]: PackageJson;
 }
 
+export interface Env {
+    [name: string]: string;
+}
+
+export interface Options {
+    npmEnv?: Env;
+}
+
 export interface ListByPackage {
     [key: string]: string[];
 }
@@ -18,10 +26,16 @@ export interface ListByPackage {
 export class LocalInstaller extends EventEmitter {
 
     private sourcesByTarget: ListByPackage;
+    private options: Options;
 
-    constructor(sourcesByTarget: ListByPackage) {
+    constructor(sourcesByTarget: ListByPackage, options?: Options) {
         super();
         this.sourcesByTarget = resolve(sourcesByTarget);
+        if (options) {
+            this.options = Object.assign({}, options);
+        } else {
+            this.options = {};
+        }
     }
 
     public on(event: 'install_targets_identified', listener: (installTargets: InstallTarget[]) => void): void;
@@ -61,7 +75,11 @@ export class LocalInstaller extends EventEmitter {
 
     private installOne(target: InstallTarget): Promise<void> {
         const toInstall = target.sources.map(source => resolvePackFile(source.packageJson)).join(' ');
-        return exec(`npm i --no-save ${toInstall}`, { cwd: target.directory }).then(([stdout, stderr]) =>
+        const options: ExecOptions = { cwd: target.directory };
+        if (this.options.npmEnv) {
+            options.env = this.options.npmEnv;
+        }
+        return exec(`npm i --no-save ${toInstall}`, options).then(([stdout, stderr]) =>
             void this.emit('installed', target.packageJson.name, stdout.toString(), stderr.toString()));
     }
 
