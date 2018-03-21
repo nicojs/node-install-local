@@ -86,6 +86,21 @@ describe('LocalInstaller install', () => {
         });
     });
 
+    describe('with npmEnv', () => {
+        const npmEnv = { test: 'test', dummy: 'dummy' };
+        beforeEach(() => {
+            sut = new LocalInstaller({'/a': ['b']}, { npmEnv });
+            stubPackageJson({'/a': 'a', 'b': 'b'});
+            execStub.resolves(['stdout', 'stderr']);
+            unlinkStub.resolves();
+        });
+
+        it('should call npm with correct env vars', async () => {
+            await sut.install();
+            expect(execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')}`, { env: npmEnv, cwd: resolve('/a') });
+        });
+    });
+
     describe('when readFile errors', () => {
         it('should propagate the error', () => {
             readFileStub.rejects(new Error('file error'));

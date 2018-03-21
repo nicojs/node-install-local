@@ -128,3 +128,14 @@ the "dependant" directory located next to the current working directory.
 Construct the `LocalInstall` by using an object. The properties of this object are the relative package locations to install into. The array values are the packages to be installed. Use the `install()` method to install, returns a promise.
 
 If you want the progress reporting like the CLI has: use `progress(localInstaller)`; 
+
+##### Passing npm env variables
+
+In some cases it might be useful to pass some custom env variables object to npm. For example when you want npm to rebuild native node modules against Electron headers. You can do it by passing `options` to `LocalInstaller`'s constructor.
+
+```javascript
+const localInstaller = new LocalInstaller(
+   { '.': ['../sibling'] },
+   { npmEnv: { envVar: 'envValue' } }
+);
+``` 
