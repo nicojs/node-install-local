@@ -31,11 +31,7 @@ export class LocalInstaller extends EventEmitter {
     constructor(sourcesByTarget: ListByPackage, options?: Options) {
         super();
         this.sourcesByTarget = resolve(sourcesByTarget);
-        if (options) {
-            this.options = Object.assign({}, options);
-        } else {
-            this.options = {};
-        }
+        this.options = Object.assign({}, options);
     }
 
     public on(event: 'install_targets_identified', listener: (installTargets: InstallTarget[]) => void): void;
