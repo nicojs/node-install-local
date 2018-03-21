@@ -13,7 +13,11 @@
     "posttest": "stryker run",
     "start": "tsc -w",
     "preversion": "npm t",
-    "version": "conventional-changelog -r 0 > CHANGELOG.md && git add CHANGELOG.md"
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
+    "postversion": "npm publish && git push && git push --tags",
+    "release:patch": "npm version patch -m \"chore(release): %s\"",
+    "release:minor": "npm version minor -m \"chore(release): %s\"",
+    "release:major": "npm version major -m \"chore(release): %s\""
   },
   "bin": {
     "install-local": "bin/install-local"
