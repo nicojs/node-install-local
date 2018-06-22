@@ -33,17 +33,19 @@ describe('LocalInstaller install', () => {
 
         it('should pack correct packages', async () => {
             await sut.install();
-            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: os.tmpdir() });
-            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: os.tmpdir() });
-            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: os.tmpdir() });
+            const maxBuffer = 1024 * 1024 * 10;
+            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: os.tmpdir(), maxBuffer });
+            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: os.tmpdir(), maxBuffer });
+            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: os.tmpdir(), maxBuffer });
         });
 
         it('should install correct packages', async () => {
             await sut.install();
+            const maxBuffer = 1024 * 1024 * 10;
             expect(execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')} ${tmp('c-0.0.2.tgz')}`,
-                { cwd: resolve('/a') });
+                { cwd: resolve('/a'), maxBuffer });
             expect(execStub).calledWith(`npm i --no-save ${tmp('e-0.0.4.tgz')}`,
-                { cwd: resolve('d') });
+                { cwd: resolve('d'), maxBuffer });
         });
 
         it('should emit all events', async () => {
@@ -97,7 +99,7 @@ describe('LocalInstaller install', () => {
 
         it('should call npm with correct env vars', async () => {
             await sut.install();
-            expect(execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')}`, { env: npmEnv, cwd: resolve('/a') });
+            expect(execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')}`, { env: npmEnv, cwd: resolve('/a'), maxBuffer: 1024 * 1024 * 10 });
         });
     });
 
