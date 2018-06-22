@@ -71,7 +71,10 @@ export class LocalInstaller extends EventEmitter {
 
     private installOne(target: InstallTarget): Promise<void> {
         const toInstall = target.sources.map(source => resolvePackFile(source.packageJson)).join(' ');
-        const options: ExecOptions = { cwd: target.directory };
+        const options: ExecOptions = {
+            cwd: target.directory,
+            maxBuffer: 1024 * 1024 * 10
+        };
         if (this.options.npmEnv) {
             options.env = this.options.npmEnv;
         }
@@ -112,8 +115,10 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private packOne(directory: string): Promise<void> {
-        return exec(`npm pack ${directory}`, { cwd: os.tmpdir() })
-            .then(() => void this.emit('packed', directory));
+        return exec(`npm pack ${directory}`, {
+            cwd: os.tmpdir(),
+            maxBuffer: 1024 * 1024 * 10
+        }).then(() => void this.emit('packed', directory));
     }
 
     private removeAllPackedTarballs(allSources: string[], packages: PackageByDirectory): Promise<void[]> {
