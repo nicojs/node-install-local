@@ -4,6 +4,7 @@ import { exec, ExecOptions } from 'mz/child_process';
 import * as fs from 'mz/fs';
 import * as os from 'os';
 import * as path from 'path';
+import * as uniqid from 'uniqid';
 import { readPackageJson } from './helpers';
 import { InstallTarget, PackageJson } from './index';
 
@@ -24,14 +25,16 @@ export interface ListByPackage {
 }
 
 export class LocalInstaller extends EventEmitter {
-
     private sourcesByTarget: ListByPackage;
     private options: Options;
+    private uniqueDir: string;
 
-    constructor(sourcesByTarget: ListByPackage, options?: Options) {
+    constructor(sourcesByTarget: ListByPackage, options?: Options, uniqueDir?: string) {
         super();
+
         this.sourcesByTarget = resolve(sourcesByTarget);
         this.options = Object.assign({}, options);
+        this.uniqueDir = uniqueDir || uniqid('node-local-install-');
     }
 
     public on(event: 'install_targets_identified', listener: (installTargets: InstallTarget[]) => void): void;
@@ -55,12 +58,28 @@ export class LocalInstaller extends EventEmitter {
     }
 
     public async install(): Promise<InstallTarget[]> {
+        await this.createTmpDirectory(getTmpDir(this.uniqueDir));
+
         const packages = await this.resolvePackages();
         const installTargets = this.identifyInstallTargets(packages);
-        const packedSources = await this.packAll();
+
+        await this.packAll();
         await this.installAll(installTargets);
-        await this.removeAllPackedTarballs(packedSources, packages);
+        await this.removeTmpDirectory();
+
         return installTargets;
+    }
+
+    public async createTmpDirectory(tmpDir: string) {
+        return new Promise((resolvePromise, rejectPromise) => {
+            fs.mkdir(tmpDir, (err) => {
+                if (err) {
+                    rejectPromise(err);
+                }
+
+                resolvePromise();
+            });
+        });
     }
 
     private installAll(installTargets: InstallTarget[]): Promise<void> {
@@ -70,7 +89,7 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private installOne(target: InstallTarget): Promise<void> {
-        const toInstall = target.sources.map(source => resolvePackFile(source.packageJson)).join(' ');
+        const toInstall = target.sources.map(source => resolvePackFile(getTmpDir(this.uniqueDir), source.packageJson)).join(' ');
         const options: ExecOptions = { cwd: target.directory };
         if (this.options.npmEnv) {
             options.env = this.options.npmEnv;
@@ -112,27 +131,25 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private packOne(directory: string): Promise<void> {
-        return exec(`npm pack ${directory}`, { cwd: os.tmpdir() })
+        return exec(`npm pack ${directory}`, { cwd: getTmpDir(this.uniqueDir) })
             .then(() => void this.emit('packed', directory));
     }
 
-    private removeAllPackedTarballs(allSources: string[], packages: PackageByDirectory): Promise<void[]> {
-        const allSourcePackages = allSources
-            .map(source => path.resolve(resolvePackFile(packages[source])));
-        return Promise.all(allSourcePackages.map(del));
+    private removeTmpDirectory(): void {
+        del(getTmpDir(this.uniqueDir));
     }
 }
 
-function resolvePackFile(pkg: PackageJson) {
+function resolvePackFile(dir: string, pkg: PackageJson) {
     // Don't forget about scoped packages
     const scopeIndex = pkg.name.indexOf('@');
     const slashIndex = pkg.name.indexOf('/');
     if (scopeIndex === 0 && slashIndex > 0) {
         // @s/b -> s-b-x.x.x.tgz
-        return path.resolve(os.tmpdir(), `${pkg.name.substr(1, slashIndex - 1)}-${pkg.name.substr(slashIndex + 1)}-${pkg.version}.tgz`);
+        return path.resolve(dir, `${pkg.name.substr(1, slashIndex - 1)}-${pkg.name.substr(slashIndex + 1)}-${pkg.version}.tgz`);
     } else {
         // b -> b-x.x.x.tgz
-        return path.resolve(os.tmpdir(), `${pkg.name}-${pkg.version}.tgz`);
+        return path.resolve(dir, `${pkg.name}-${pkg.version}.tgz`);
     }
 }
 
@@ -144,6 +161,20 @@ export function resolve(packagesByTarget: ListByPackage) {
     return resolvedPackages;
 }
 
-function del(file: string): Promise<void> {
-    return fs.unlink(file);
+function del(dir: string) {
+    if (fs.existsSync(dir)) {
+        fs.readdirSync(dir).forEach((file) => {
+            const curPath = path.join(dir, file);
+            if (fs.lstatSync(curPath).isDirectory()) {
+                del(curPath);
+            } else {
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(dir);
+    }
+}
+
+function getTmpDir(uniqueId: string) {
+    return path.resolve(os.tmpdir(), uniqueId);
 }
