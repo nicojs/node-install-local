@@ -6,18 +6,27 @@ import { resolve } from 'path';
 import * as sinon from 'sinon';
 import { LocalInstaller } from './../../src/LocalInstaller';
 
+const CALLBACK = 1;
+
 describe('LocalInstaller install', () => {
     let sut: LocalInstaller;
     let sandbox: sinon.SinonSandbox;
     let readFileStub: sinon.SinonStub;
     let execStub: sinon.SinonStub;
     let unlinkStub: sinon.SinonStub;
+    let mkdirStub: sinon.SinonStub;
+
+    const tmpDir = resolve(os.tmpdir(), 'node-local-install-5a6s4df65asdas');
 
     beforeEach(() => {
         sandbox = sinon.sandbox.create();
         execStub = sandbox.stub(child_process, 'exec');
+        mkdirStub = sandbox.stub(fs, 'mkdir');
         unlinkStub = sandbox.stub(fs, 'unlink');
         readFileStub = sandbox.stub(fs, 'readFile');
+
+        // Call callback
+        mkdirStub.callsArg(CALLBACK);
     });
 
     afterEach(() => sandbox.restore());
@@ -25,17 +34,23 @@ describe('LocalInstaller install', () => {
     describe('with some normal packages', () => {
 
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b', 'c'], 'd': ['/e'] });
+            sut = new LocalInstaller({ '/a': ['b', 'c'], 'd': ['/e'] }, {}, tmpDir);
             stubPackageJson({ '/a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', '/e': 'e' });
             execStub.resolves(['stdout', 'stderr']);
             unlinkStub.resolves();
         });
 
+        it('should create a temporary directory', async () => {
+            await sut.install();
+
+            expect(mkdirStub).calledWith(tmpDir);
+        });
+
         it('should pack correct packages', async () => {
             await sut.install();
-            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: os.tmpdir() });
-            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: os.tmpdir() });
-            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: os.tmpdir() });
+            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: tmpDir });
+            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: tmpDir });
+            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: tmpDir });
         });
 
         it('should install correct packages', async () => {
@@ -74,7 +89,7 @@ describe('LocalInstaller install', () => {
 
     describe('with scoped packages', () => {
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b'] });
+            sut = new LocalInstaller({ '/a': ['b'] }, {}, tmpDir);
             stubPackageJson({ '/a': 'a', 'b': '@s/b' });
             execStub.resolves(['stdout', 'stderr']);
             unlinkStub.resolves();
@@ -89,7 +104,7 @@ describe('LocalInstaller install', () => {
     describe('with npmEnv', () => {
         const npmEnv = { test: 'test', dummy: 'dummy' };
         beforeEach(() => {
-            sut = new LocalInstaller({'/a': ['b']}, { npmEnv });
+            sut = new LocalInstaller({'/a': ['b']}, { npmEnv }, tmpDir);
             stubPackageJson({'/a': 'a', 'b': 'b'});
             execStub.resolves(['stdout', 'stderr']);
             unlinkStub.resolves();
@@ -111,7 +126,7 @@ describe('LocalInstaller install', () => {
     describe('when packing errors', () => {
 
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b'] });
+            sut = new LocalInstaller({ '/a': ['b'] }, {}, tmpDir);
             stubPackageJson({ '/a': 'a', 'b': 'b' });
         });
 
@@ -123,7 +138,7 @@ describe('LocalInstaller install', () => {
 
     describe('when installing errors', () => {
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b'] });
+            sut = new LocalInstaller({ '/a': ['b'] }, {}, tmpDir);
             stubPackageJson({ '/a': 'a', 'b': 'b' });
             stubPack('b');
         });
@@ -134,7 +149,7 @@ describe('LocalInstaller install', () => {
         });
     });
 
-    const tmp = (file: string) => resolve(os.tmpdir(), file);
+    const tmp = (file: string) => resolve(tmpDir, file);
 
     const stubPackageJson = (recipe: { [directory: string]: string }) => {
         Object.keys(recipe).forEach((directory, i) => {
