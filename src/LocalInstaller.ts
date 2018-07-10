@@ -2,11 +2,10 @@ import { EventEmitter } from 'events';
 import * as _ from 'lodash';
 import { exec, ExecOptions } from 'mz/child_process';
 import * as fs from 'mz/fs';
-import * as os from 'os';
 import * as path from 'path';
-import * as uniqid from 'uniqid';
 import { readPackageJson } from './helpers';
 import { InstallTarget, PackageJson } from './index';
+import { del, getRandomTmpDir } from './utils';
 
 interface PackageByDirectory {
     [directory: string]: PackageJson;
@@ -29,12 +28,12 @@ export class LocalInstaller extends EventEmitter {
     private options: Options;
     private uniqueDir: string;
 
-    constructor(sourcesByTarget: ListByPackage, options?: Options, uniqueDir?: string) {
+    constructor(sourcesByTarget: ListByPackage, options?: Options) {
         super();
 
         this.sourcesByTarget = resolve(sourcesByTarget);
         this.options = Object.assign({}, options);
-        this.uniqueDir = uniqueDir || uniqid('node-local-install-');
+        this.uniqueDir = getRandomTmpDir('node-local-install-');
     }
 
     public on(event: 'install_targets_identified', listener: (installTargets: InstallTarget[]) => void): void;
@@ -58,7 +57,7 @@ export class LocalInstaller extends EventEmitter {
     }
 
     public async install(): Promise<InstallTarget[]> {
-        await this.createTmpDirectory(getTmpDir(this.uniqueDir));
+        await this.createTmpDirectory(this.uniqueDir);
 
         const packages = await this.resolvePackages();
         const installTargets = this.identifyInstallTargets(packages);
@@ -71,15 +70,7 @@ export class LocalInstaller extends EventEmitter {
     }
 
     public async createTmpDirectory(tmpDir: string) {
-        return new Promise((resolvePromise, rejectPromise) => {
-            fs.mkdir(tmpDir, (err) => {
-                if (err) {
-                    rejectPromise(err);
-                }
-
-                resolvePromise();
-            });
-        });
+        return fs.mkdir(tmpDir);
     }
 
     private installAll(installTargets: InstallTarget[]): Promise<void> {
@@ -89,7 +80,7 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private installOne(target: InstallTarget): Promise<void> {
-        const toInstall = target.sources.map(source => resolvePackFile(getTmpDir(this.uniqueDir), source.packageJson)).join(' ');
+        const toInstall = target.sources.map(source => resolvePackFile(this.uniqueDir, source.packageJson)).join(' ');
         const options: ExecOptions = { cwd: target.directory };
         if (this.options.npmEnv) {
             options.env = this.options.npmEnv;
@@ -131,12 +122,12 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private packOne(directory: string): Promise<void> {
-        return exec(`npm pack ${directory}`, { cwd: getTmpDir(this.uniqueDir) })
+        return exec(`npm pack ${directory}`, { cwd: this.uniqueDir })
             .then(() => void this.emit('packed', directory));
     }
 
     private removeTmpDirectory(): void {
-        del(getTmpDir(this.uniqueDir));
+        del(this.uniqueDir);
     }
 }
 
@@ -159,22 +150,4 @@ export function resolve(packagesByTarget: ListByPackage) {
         resolvedPackages[path.resolve(localTarget)] = _.uniq(packagesByTarget[localTarget].map(pkg => path.resolve(pkg)));
     });
     return resolvedPackages;
-}
-
-function del(dir: string) {
-    if (fs.existsSync(dir)) {
-        fs.readdirSync(dir).forEach((file) => {
-            const curPath = path.join(dir, file);
-            if (fs.lstatSync(curPath).isDirectory()) {
-                del(curPath);
-            } else {
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(dir);
-    }
-}
-
-function getTmpDir(uniqueId: string) {
-    return path.resolve(os.tmpdir(), uniqueId);
 }
