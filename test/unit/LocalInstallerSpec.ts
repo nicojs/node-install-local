@@ -5,7 +5,7 @@ import * as os from 'os';
 import { resolve } from 'path';
 import * as sinon from 'sinon';
 import { LocalInstaller } from './../../src/LocalInstaller';
-
+const TEN_MEGA_BYTE = 1024 * 1024 * 10;
 describe('LocalInstaller install', () => {
     let sut: LocalInstaller;
     let sandbox: sinon.SinonSandbox;
@@ -33,17 +33,17 @@ describe('LocalInstaller install', () => {
 
         it('should pack correct packages', async () => {
             await sut.install();
-            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: os.tmpdir() });
-            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: os.tmpdir() });
-            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: os.tmpdir() });
+            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: os.tmpdir(), maxBuffer: TEN_MEGA_BYTE });
+            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: os.tmpdir(), maxBuffer: TEN_MEGA_BYTE });
+            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: os.tmpdir(), maxBuffer: TEN_MEGA_BYTE });
         });
 
         it('should install correct packages', async () => {
             await sut.install();
             expect(execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')} ${tmp('c-0.0.2.tgz')}`,
-                { cwd: resolve('/a') });
+                { cwd: resolve('/a'), maxBuffer: TEN_MEGA_BYTE });
             expect(execStub).calledWith(`npm i --no-save ${tmp('e-0.0.4.tgz')}`,
-                { cwd: resolve('d') });
+                { cwd: resolve('d'), maxBuffer: TEN_MEGA_BYTE });
         });
 
         it('should emit all events', async () => {
@@ -97,7 +97,7 @@ describe('LocalInstaller install', () => {
 
         it('should call npm with correct env vars', async () => {
             await sut.install();
-            expect(execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')}`, { env: npmEnv, cwd: resolve('/a') });
+            expect(execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')}`, { env: npmEnv, cwd: resolve('/a'), maxBuffer: TEN_MEGA_BYTE });
         });
     });
 

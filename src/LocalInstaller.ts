@@ -23,6 +23,7 @@ export interface ListByPackage {
     [key: string]: string[];
 }
 
+const TEN_MEGA_BYTE = 1024 * 1024 * 10;
 export class LocalInstaller extends EventEmitter {
 
     private sourcesByTarget: ListByPackage;
@@ -71,7 +72,10 @@ export class LocalInstaller extends EventEmitter {
 
     private installOne(target: InstallTarget): Promise<void> {
         const toInstall = target.sources.map(source => resolvePackFile(source.packageJson)).join(' ');
-        const options: ExecOptions = { cwd: target.directory };
+        const options: ExecOptions = {
+            cwd: target.directory,
+            maxBuffer: TEN_MEGA_BYTE
+        };
         if (this.options.npmEnv) {
             options.env = this.options.npmEnv;
         }
@@ -112,8 +116,10 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private packOne(directory: string): Promise<void> {
-        return exec(`npm pack ${directory}`, { cwd: os.tmpdir() })
-            .then(() => void this.emit('packed', directory));
+        return exec(`npm pack ${directory}`, {
+            cwd: os.tmpdir(),
+            maxBuffer: TEN_MEGA_BYTE
+        }).then(() => void this.emit('packed', directory));
     }
 
     private removeAllPackedTarballs(allSources: string[], packages: PackageByDirectory): Promise<void[]> {
