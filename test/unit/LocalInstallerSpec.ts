@@ -4,17 +4,16 @@ import * as fs from 'mz/fs';
 import * as os from 'os';
 import { resolve } from 'path';
 import * as sinon from 'sinon';
+import * as utils from '../../src/utils';
 import { LocalInstaller } from './../../src/LocalInstaller';
-
-const CALLBACK = 1;
 
 describe('LocalInstaller install', () => {
     let sut: LocalInstaller;
     let sandbox: sinon.SinonSandbox;
     let readFileStub: sinon.SinonStub;
     let execStub: sinon.SinonStub;
-    let unlinkStub: sinon.SinonStub;
     let mkdirStub: sinon.SinonStub;
+    let rimrafStub: sinon.SinonStub;
 
     const tmpDir = resolve(os.tmpdir(), 'node-local-install-5a6s4df65asdas');
 
@@ -22,11 +21,13 @@ describe('LocalInstaller install', () => {
         sandbox = sinon.sandbox.create();
         execStub = sandbox.stub(child_process, 'exec');
         mkdirStub = sandbox.stub(fs, 'mkdir');
-        unlinkStub = sandbox.stub(fs, 'unlink');
         readFileStub = sandbox.stub(fs, 'readFile');
+        rimrafStub = sandbox.stub(utils, 'del');
+
+        sandbox.stub(utils, 'getRandomTmpDir').returns(tmpDir);
 
         // Call callback
-        mkdirStub.callsArg(CALLBACK);
+        mkdirStub.resolves();
     });
 
     afterEach(() => sandbox.restore());
@@ -34,10 +35,10 @@ describe('LocalInstaller install', () => {
     describe('with some normal packages', () => {
 
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b', 'c'], 'd': ['/e'] }, {}, tmpDir);
+            sut = new LocalInstaller({ '/a': ['b', 'c'], 'd': ['/e'] });
             stubPackageJson({ '/a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', '/e': 'e' });
             execStub.resolves(['stdout', 'stderr']);
-            unlinkStub.resolves();
+            rimrafStub.resolves();
         });
 
         it('should create a temporary directory', async () => {
@@ -89,10 +90,10 @@ describe('LocalInstaller install', () => {
 
     describe('with scoped packages', () => {
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b'] }, {}, tmpDir);
+            sut = new LocalInstaller({ '/a': ['b'] });
             stubPackageJson({ '/a': 'a', 'b': '@s/b' });
             execStub.resolves(['stdout', 'stderr']);
-            unlinkStub.resolves();
+            rimrafStub.resolves();
         });
 
         it('should install scoped packages', async () => {
@@ -104,10 +105,10 @@ describe('LocalInstaller install', () => {
     describe('with npmEnv', () => {
         const npmEnv = { test: 'test', dummy: 'dummy' };
         beforeEach(() => {
-            sut = new LocalInstaller({'/a': ['b']}, { npmEnv }, tmpDir);
-            stubPackageJson({'/a': 'a', 'b': 'b'});
+            sut = new LocalInstaller({ '/a': ['b'] }, { npmEnv });
+            stubPackageJson({ '/a': 'a', 'b': 'b' });
             execStub.resolves(['stdout', 'stderr']);
-            unlinkStub.resolves();
+            rimrafStub.resolves();
         });
 
         it('should call npm with correct env vars', async () => {
@@ -126,7 +127,7 @@ describe('LocalInstaller install', () => {
     describe('when packing errors', () => {
 
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b'] }, {}, tmpDir);
+            sut = new LocalInstaller({ '/a': ['b'] }, {});
             stubPackageJson({ '/a': 'a', 'b': 'b' });
         });
 
@@ -138,7 +139,7 @@ describe('LocalInstaller install', () => {
 
     describe('when installing errors', () => {
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b'] }, {}, tmpDir);
+            sut = new LocalInstaller({ '/a': ['b'] }, {});
             stubPackageJson({ '/a': 'a', 'b': 'b' });
             stubPack('b');
         });
