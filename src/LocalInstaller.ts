@@ -117,8 +117,7 @@ export class LocalInstaller extends EventEmitter {
         const allSources = _.uniq(_.flatMap(Object.keys(this.sourcesByTarget), target => this.sourcesByTarget[target]));
         this.emit('packing_start', allSources);
         return Promise.all(allSources.map(source => this.packOne(source)))
-            .then(() => this.emit('packing_end'))
-            .then(() => allSources);
+            .then(() => this.emit('packing_end'));
     }
 
     private packOne(directory: string): Promise<void> {
