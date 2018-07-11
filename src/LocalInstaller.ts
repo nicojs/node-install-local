@@ -84,9 +84,11 @@ export class LocalInstaller extends EventEmitter {
         const toInstall = target.sources.map(source => resolvePackFile(this.uniqueDir, source.packageJson)).join(' ');
         const options: ExecOptions = {
             cwd: target.directory,
-            env: this.options.npmEnv || undefined,
             maxBuffer: TEN_MEGA_BYTE
         };
+        if (this.options.npmEnv) {
+            options.env = this.options.npmEnv;
+        }
         return exec(`npm i --no-save ${toInstall}`, options).then(([stdout, stderr]) =>
             void this.emit('installed', target.packageJson.name, stdout.toString(), stderr.toString()));
     }
