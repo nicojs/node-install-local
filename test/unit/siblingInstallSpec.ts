@@ -45,6 +45,7 @@ describe('siblingInstall', () => {
         await siblingInstall();
 
         // Assert
+        expect(readdirStub).calledWith('..');
         expect(index.LocalInstaller).calledWith({ [siblings.a]: ['.'], [siblings.c]: ['.'] });
         expect(index.LocalInstaller).calledWithNew;
         expect(localInstallStub.install).called;
