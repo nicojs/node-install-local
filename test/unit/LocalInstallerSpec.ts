@@ -14,6 +14,7 @@ describe('LocalInstaller install', () => {
     let execStub: sinon.SinonStub;
     let mkdirStub: sinon.SinonStub;
     let rimrafStub: sinon.SinonStub;
+    let getRandomTmpDirStub: sinon.SinonStub;
 
     const tmpDir = resolve(os.tmpdir(), 'node-local-install-5a6s4df65asdas');
 
@@ -23,8 +24,7 @@ describe('LocalInstaller install', () => {
         mkdirStub = sandbox.stub(fs, 'mkdir');
         readFileStub = sandbox.stub(fs, 'readFile');
         rimrafStub = sandbox.stub(utils, 'del');
-
-        sandbox.stub(utils, 'getRandomTmpDir').returns(tmpDir);
+        getRandomTmpDirStub = sandbox.stub(utils, 'getRandomTmpDir').returns(tmpDir);
 
         // Call callback
         mkdirStub.resolves();
@@ -44,6 +44,7 @@ describe('LocalInstaller install', () => {
         it('should create a temporary directory', async () => {
             await sut.install();
 
+            expect(getRandomTmpDirStub).calledWith('node-local-install-');
             expect(mkdirStub).calledWith(tmpDir);
         });
 
@@ -85,6 +86,12 @@ describe('LocalInstaller install', () => {
             expect(packed).callCount(3);
             expect(installEnd).callCount(1);
             expect(packingEnd).callCount(1);
+        });
+
+        it('should remove the temporary directory', async () => {
+            await sut.install();
+
+            expect(rimrafStub).calledWith(tmpDir);
         });
     });
 
