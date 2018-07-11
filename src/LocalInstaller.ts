@@ -23,6 +23,7 @@ export interface ListByPackage {
     [key: string]: string[];
 }
 
+const TEN_MEGA_BYTE = 1024 * 1024 * 10;
 export class LocalInstaller extends EventEmitter {
     private sourcesByTarget: ListByPackage;
     private options: Options;
@@ -81,10 +82,11 @@ export class LocalInstaller extends EventEmitter {
 
     private installOne(target: InstallTarget): Promise<void> {
         const toInstall = target.sources.map(source => resolvePackFile(this.uniqueDir, source.packageJson)).join(' ');
-        const options: ExecOptions = { cwd: target.directory };
-        if (this.options.npmEnv) {
-            options.env = this.options.npmEnv;
-        }
+        const options: ExecOptions = {
+            cwd: target.directory,
+            env: this.options.npmEnv || undefined,
+            maxBuffer: TEN_MEGA_BYTE
+        };
         return exec(`npm i --no-save ${toInstall}`, options).then(([stdout, stderr]) =>
             void this.emit('installed', target.packageJson.name, stdout.toString(), stderr.toString()));
     }
@@ -121,7 +123,7 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private packOne(directory: string): Promise<void> {
-        return exec(`npm pack ${directory}`, { cwd: this.uniqueDir })
+        return exec(`npm pack ${directory}`, { cwd: this.uniqueDir, maxBuffer: TEN_MEGA_BYTE })
             .then(() => void this.emit('packed', directory));
     }
 
