@@ -50,4 +50,17 @@ describe('currentDirectoryInstall', () => {
         localInstallerStub.install.rejects(new Error('some error'));
         expect(currentDirectoryInstall(options())).to.rejectedWith('some error');
     });
+
+    it('should not install anything when no arguments nor local dependencies are provided', async () => {
+        localInstallerStub.install.resolves();
+        readPackageJsonStub.resolves(packageJson({}));
+        const expectedOptions = options({ dependencies: [] });
+        await currentDirectoryInstall(expectedOptions);
+        expect(index.LocalInstaller).calledWith({ '.': [] });
+        expect(index.LocalInstaller).calledWithNew;
+        expect(localInstallerStub.install).called;
+        expect(progressStub).to.have.been.calledWith(localInstallerStub);
+        expect(readPackageJsonStub).to.have.been.calledWith('.');
+        expect(saveIfNeededStub).to.have.been.calledWith(expectedOptions);
+    });
 });

@@ -13,6 +13,10 @@
                 "--target-siblings"
             ],
             "cwd": "${workspaceRoot}/../../stryker-mutator/stryker/packages/stryker-api",
+            "outFiles": [
+                "src/**/*.js",
+                "test/**/*.js"
+            ],
             "sourceMaps": true
         },
         {
@@ -24,7 +28,11 @@
                 "run"
             ],
             "console": "integratedTerminal",
-            "sourceMaps": true
+            "sourceMaps": true,
+            "outFiles": [
+                "src/**/*.js",
+                "test/**/*.js"
+            ]
         },
         {
             "type": "node",
@@ -39,7 +47,11 @@
                 "--colors",
                 "${workspaceRoot}/test/**/*.js"
             ],
-            "internalConsoleOptions": "openOnSessionStart"
+            "internalConsoleOptions": "openOnSessionStart",
+            "outFiles": [
+                "src/**/*.js",
+                "test/**/*.js"
+            ]
         },
         {
             "type": "node",
@@ -55,7 +67,11 @@
                 "${workspaceRoot}/test/helpers",
                 "${workspaceRoot}/test/unit"
             ],
-            "internalConsoleOptions": "openOnSessionStart"
+            "internalConsoleOptions": "openOnSessionStart",
+            "outFiles": [
+                "src/**/*.js",
+                "test/**/*.js"
+            ]
         }
     ]
 }

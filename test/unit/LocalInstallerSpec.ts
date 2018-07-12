@@ -4,6 +4,7 @@ import * as fs from 'mz/fs';
 import * as os from 'os';
 import { resolve } from 'path';
 import * as sinon from 'sinon';
+import * as utils from '../../src/utils';
 import { LocalInstaller } from './../../src/LocalInstaller';
 const TEN_MEGA_BYTE = 1024 * 1024 * 10;
 describe('LocalInstaller install', () => {
@@ -11,13 +12,22 @@ describe('LocalInstaller install', () => {
     let sandbox: sinon.SinonSandbox;
     let readFileStub: sinon.SinonStub;
     let execStub: sinon.SinonStub;
-    let unlinkStub: sinon.SinonStub;
+    let mkdirStub: sinon.SinonStub;
+    let rimrafStub: sinon.SinonStub;
+    let getRandomTmpDirStub: sinon.SinonStub;
+
+    const tmpDir = resolve(os.tmpdir(), 'node-local-install-5a6s4df65asdas');
 
     beforeEach(() => {
         sandbox = sinon.sandbox.create();
         execStub = sandbox.stub(child_process, 'exec');
-        unlinkStub = sandbox.stub(fs, 'unlink');
+        mkdirStub = sandbox.stub(fs, 'mkdir');
         readFileStub = sandbox.stub(fs, 'readFile');
+        rimrafStub = sandbox.stub(utils, 'del');
+        getRandomTmpDirStub = sandbox.stub(utils, 'getRandomTmpDir').returns(tmpDir);
+
+        // Call callback
+        mkdirStub.resolves();
     });
 
     afterEach(() => sandbox.restore());
@@ -28,14 +38,21 @@ describe('LocalInstaller install', () => {
             sut = new LocalInstaller({ '/a': ['b', 'c'], 'd': ['/e'] });
             stubPackageJson({ '/a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', '/e': 'e' });
             execStub.resolves(['stdout', 'stderr']);
-            unlinkStub.resolves();
+            rimrafStub.resolves();
+        });
+
+        it('should create a temporary directory', async () => {
+            await sut.install();
+
+            expect(getRandomTmpDirStub).calledWith('node-local-install-');
+            expect(mkdirStub).calledWith(tmpDir);
         });
 
         it('should pack correct packages', async () => {
             await sut.install();
-            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: os.tmpdir(), maxBuffer: TEN_MEGA_BYTE });
-            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: os.tmpdir(), maxBuffer: TEN_MEGA_BYTE });
-            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: os.tmpdir(), maxBuffer: TEN_MEGA_BYTE });
+            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
+            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
+            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
         });
 
         it('should install correct packages', async () => {
@@ -70,6 +87,12 @@ describe('LocalInstaller install', () => {
             expect(installEnd).callCount(1);
             expect(packingEnd).callCount(1);
         });
+
+        it('should remove the temporary directory', async () => {
+            await sut.install();
+
+            expect(rimrafStub).calledWith(tmpDir);
+        });
     });
 
     describe('with scoped packages', () => {
@@ -77,7 +100,7 @@ describe('LocalInstaller install', () => {
             sut = new LocalInstaller({ '/a': ['b'] });
             stubPackageJson({ '/a': 'a', 'b': '@s/b' });
             execStub.resolves(['stdout', 'stderr']);
-            unlinkStub.resolves();
+            rimrafStub.resolves();
         });
 
         it('should install scoped packages', async () => {
@@ -89,10 +112,10 @@ describe('LocalInstaller install', () => {
     describe('with npmEnv', () => {
         const npmEnv = { test: 'test', dummy: 'dummy' };
         beforeEach(() => {
-            sut = new LocalInstaller({'/a': ['b']}, { npmEnv });
-            stubPackageJson({'/a': 'a', 'b': 'b'});
+            sut = new LocalInstaller({ '/a': ['b'] }, { npmEnv });
+            stubPackageJson({ '/a': 'a', 'b': 'b' });
             execStub.resolves(['stdout', 'stderr']);
-            unlinkStub.resolves();
+            rimrafStub.resolves();
         });
 
         it('should call npm with correct env vars', async () => {
@@ -111,7 +134,7 @@ describe('LocalInstaller install', () => {
     describe('when packing errors', () => {
 
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b'] });
+            sut = new LocalInstaller({ '/a': ['b'] }, {});
             stubPackageJson({ '/a': 'a', 'b': 'b' });
         });
 
@@ -123,7 +146,7 @@ describe('LocalInstaller install', () => {
 
     describe('when installing errors', () => {
         beforeEach(() => {
-            sut = new LocalInstaller({ '/a': ['b'] });
+            sut = new LocalInstaller({ '/a': ['b'] }, {});
             stubPackageJson({ '/a': 'a', 'b': 'b' });
             stubPack('b');
         });
@@ -134,7 +157,7 @@ describe('LocalInstaller install', () => {
         });
     });
 
-    const tmp = (file: string) => resolve(os.tmpdir(), file);
+    const tmp = (file: string) => resolve(tmpDir, file);
 
     const stubPackageJson = (recipe: { [directory: string]: string }) => {
         Object.keys(recipe).forEach((directory, i) => {

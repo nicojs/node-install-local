@@ -18,11 +18,7 @@ function readLocalDependencies(dependenciesFromArguments: string[]): Promise<str
         return Promise.resolve(dependenciesFromArguments);
     } else {
         return readPackageJson('.').then((pkg: PackageJson) => {
-            if (pkg.localDependencies) {
-                return _.values(pkg.localDependencies);
-            } else {
-                return [];
-            }
+            return _.values(pkg.localDependencies);
         });
     }
 }
