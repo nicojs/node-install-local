@@ -8,7 +8,8 @@ describe('Utils', () => {
         const prefix = 'some-prefix-';
         const expectedPath = path.resolve(os.tmpdir(), prefix);
 
-        // Match expected path followed by an unique id
-        expect(getRandomTmpDir(prefix)).to.match(new RegExp(`^${ expectedPath }.*`));
+        // Match expected path followed by a unique id (replacing `\` with `\\`)
+        const pathRegex = new RegExp(`^${expectedPath.replace(/\\/g, '\\\\')}.*`);
+        expect(getRandomTmpDir(prefix)).to.match(pathRegex);
     });
 });

@@ -24,7 +24,7 @@ describe('Helpers', () => {
 
         await readPackageJson(pathToProject);
 
-        expect(readFileStub).calledWith(path.resolve(pathToProject, 'package.json'), 'utf8');
+        expect(readFileStub).calledWith(path.join(pathToProject, 'package.json'), 'utf8');
     });
 
     it('should convert the content read to a javascript \'PackageJson\' object', async () => {

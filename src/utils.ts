@@ -7,9 +7,9 @@ export function del(filename: string) {
     return new Promise((resolve, reject) => rimraf(filename, (err) => {
         if (err) {
             reject(err);
+        } else {
+            resolve();
         }
-
-        resolve();
     }));
 }
 
