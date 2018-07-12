@@ -9,7 +9,7 @@ describe('Helpers', () => {
     let readFileStub: sinon.SinonStub;
 
     beforeEach(() => {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
 
         readFileStub = sandbox.stub(fs, 'readFile');
         readFileStub.resolves('{}');

@@ -14,7 +14,7 @@ describe('currentDirectoryInstall', () => {
     let readPackageJsonStub: sinon.SinonStub;
 
     beforeEach(() => {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         localInstallerStub = { install: sandbox.stub() };
         sandbox.stub(index, 'LocalInstaller').returns(localInstallerStub);
         saveIfNeededStub = sandbox.stub(index, 'saveIfNeeded');

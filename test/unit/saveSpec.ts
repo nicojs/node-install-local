@@ -28,7 +28,7 @@ describe('saveIfNeeded', () => {
                 version: '0.0.2'
             }
         }];
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         writeFileStub = sandbox.stub(fs, 'writeFile');
     });
 

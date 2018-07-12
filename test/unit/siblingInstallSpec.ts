@@ -14,7 +14,7 @@ describe('siblingInstall', () => {
     let localInstallStub: { install: sinon.SinonStub };
 
     beforeEach(() => {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         localInstallStub = { install: sandbox.stub() };
         readdirStub = sandbox.stub(fs, 'readdir');
         readPackageJson = sandbox.stub(helpers, 'readPackageJson');

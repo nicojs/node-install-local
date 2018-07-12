@@ -16,7 +16,7 @@ describe('cli', () => {
     let siblingInstallStub: sinon.SinonStub;
 
     beforeEach(() => {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         optionsMock = { dependencies: [], save: false, targetSiblings: false, validate: sandbox.stub() };
         sandbox.stub(index, 'Options').returns(optionsMock);
         currentDirectoryInstallStub = sandbox.stub(index, 'currentDirectoryInstall');

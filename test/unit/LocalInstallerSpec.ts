@@ -19,7 +19,7 @@ describe('LocalInstaller install', () => {
     const tmpDir = resolve(os.tmpdir(), 'node-local-install-5a6s4df65asdas');
 
     beforeEach(() => {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
         execStub = sandbox.stub(child_process, 'exec');
         mkdirStub = sandbox.stub(fs, 'mkdir');
         readFileStub = sandbox.stub(fs, 'readFile');

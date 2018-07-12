@@ -1,9 +1,6 @@
 module.exports = function (config) {
   config.set({
     tsconfigFile: 'tsconfig.json',
-    files: [
-      '!test/integration/**/*.ts'
-    ],
     mutate: [
       'src/**/*.ts',
       '!src/**/*.d.ts'
@@ -15,7 +12,10 @@ module.exports = function (config) {
     testRunner: "mocha",
     reporter: ["html", "clear-text", "progress"],
     testFramework: "mocha",
-    coverageAnalysis: "off",
+    mochaOptions: {
+      files: ['test/helpers/**/*.js', 'test/unit/**/*.js']
+    },
+    coverageAnalysis: "perTest",
     thresholds: {
       high: 90,
       low: 85,
