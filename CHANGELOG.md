@@ -1,3 +1,13 @@
+<a name="0.6.0"></a>
+# [0.6.0](https://github.com/nicojs/node-install-local/compare/v0.5.0...v0.6.0) (2018-07-12)
+
+
+### Features
+
+* **install-local:** Support parallel install ([#11](https://github.com/nicojs/node-install-local/issues/11)) ([a2f9524](https://github.com/nicojs/node-install-local/commit/a2f9524))
+
+
+
 <a name="0.5.0"></a>
 # [0.5.0](https://github.com/nicojs/node-install-local/compare/v0.4.1...v0.5.0) (2018-03-21)
 
