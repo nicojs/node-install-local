@@ -6,6 +6,9 @@
 
 * **install-local:** Support parallel install ([#11](https://github.com/nicojs/node-install-local/issues/11)) ([a2f9524](https://github.com/nicojs/node-install-local/commit/a2f9524))
 
+### Bug fixes
+
+* **Child process:** increase `maxBuffer` to 10MB
 
 
 <a name="0.5.0"></a>
