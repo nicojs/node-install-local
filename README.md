@@ -131,11 +131,20 @@ If you want the progress reporting like the CLI has: use `progress(localInstalle
 
 ##### Passing npm env variables
 
-In some cases it might be useful to pass some custom env variables object to npm. For example when you want npm to rebuild native node modules against Electron headers. You can do it by passing `options` to `LocalInstaller`'s constructor.
+In some cases it might be useful to control the env variables for npm. For example when you want npm to rebuild native node modules against Electron headers. You can do it by passing `options` to `LocalInstaller`'s constructor.
 
 ```javascript
 const localInstaller = new LocalInstaller(
    { '.': ['../sibling'] },
    { npmEnv: { envVar: 'envValue' } }
 );
-``` 
+```
+
+Because the value provided for `npmEnv` will override the environment of the npm execution, you may want to extend the existing environment so that required values such as `PATH` are preserved:
+
+```javascript
+const localInstaller = new LocalInstaller(
+   { '.': ['../sibling'] },
+   { npmEnv: Object.assign({}, process.env, { envVar: 'envValue' }) }
+);
+```
