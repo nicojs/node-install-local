@@ -24,6 +24,10 @@ export interface ListByPackage {
 }
 
 const TEN_MEGA_BYTE = 1024 * 1024 * 10;
+
+function quotify(value: string) {
+    return `"${value}"`;
+}
 export class LocalInstaller extends EventEmitter {
     private sourcesByTarget: ListByPackage;
     private options: Options;
@@ -81,7 +85,10 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private installOne(target: InstallTarget): Promise<void> {
-        const toInstall = target.sources.map(source => resolvePackFile(this.uniqueDir, source.packageJson)).join(' ');
+        const toInstall = target.sources
+            .map(source => resolvePackFile(this.uniqueDir, source.packageJson))
+            .map(quotify)
+            .join(' ');
         const options: ExecOptions = {
             cwd: target.directory,
             maxBuffer: TEN_MEGA_BYTE
@@ -125,7 +132,7 @@ export class LocalInstaller extends EventEmitter {
     }
 
     private packOne(directory: string): Promise<void> {
-        return exec(`npm pack ${directory}`, { cwd: this.uniqueDir, maxBuffer: TEN_MEGA_BYTE })
+        return exec(`npm pack ${quotify(directory)}`, { cwd: this.uniqueDir, maxBuffer: TEN_MEGA_BYTE })
             .then(() => void this.emit('packed', directory));
     }
 
