@@ -1,3 +1,12 @@
+## [0.6.2](https://github.com/nicojs/node-install-local/compare/v0.6.0...v0.6.2) (2018-11-21)
+
+
+### Bug Fixes
+
+* **Space in file name:** Support dirs with a space in the name ([2ea3786](https://github.com/nicojs/node-install-local/commit/2ea3786))
+
+
+
 <a name="0.6.0"></a>
 # [0.6.0](https://github.com/nicojs/node-install-local/compare/v0.5.0...v0.6.0) (2018-07-12)
 
