@@ -50,9 +50,9 @@ describe('LocalInstaller install', () => {
 
         it('should pack correct packages', async () => {
             await sut.install();
-            expect(execStub).calledWith(`npm pack ${resolve('b')}`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
-            expect(execStub).calledWith(`npm pack ${resolve('c')}`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
-            expect(execStub).calledWith(`npm pack ${resolve('/e')}`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
+            expect(execStub).calledWith(`npm pack "${resolve('b')}"`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
+            expect(execStub).calledWith(`npm pack "${resolve('c')}"`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
+            expect(execStub).calledWith(`npm pack "${resolve('/e')}"`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
         });
 
         it('should install correct packages', async () => {
@@ -157,7 +157,7 @@ describe('LocalInstaller install', () => {
         });
     });
 
-    const tmp = (file: string) => resolve(tmpDir, file);
+    const tmp = (file: string) => `"${resolve(tmpDir, file)}"`;
 
     const stubPackageJson = (recipe: { [directory: string]: string }) => {
         Object.keys(recipe).forEach((directory, i) => {
