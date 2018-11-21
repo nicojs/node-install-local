@@ -1,6 +1,6 @@
 {
   "name": "install-local",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A small module for installing local packages. Works for both npm >= 5 and older versions.",
   "main": "src/index.js",
   "typings": "src/index.d.ts",
@@ -52,7 +52,7 @@
     "@types/uniqid": "^4.1.2",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "conventional-changelog": "^2.0.1",
+    "conventional-changelog-cli": "^2.0.11",
     "mocha": "^5.2.0",
     "semver": "^5.5.0",
     "sinon": "^6.1.3",
