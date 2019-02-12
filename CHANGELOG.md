@@ -1,3 +1,7 @@
+# [1.0.0](https://github.com/nicojs/node-install-local/compare/v0.6.2...v1.0.0) (2019-02-12)
+
+
+
 ## [0.6.2](https://github.com/nicojs/node-install-local/compare/v0.6.0...v0.6.2) (2018-11-21)
 
 
