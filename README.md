@@ -13,6 +13,12 @@ Install with
 npm install -g install-local
 ```
 
+**or** for occasional use, without installation
+
+```bash
+$ npx install-local
+```
+
 You can use install-local from command line or programmatically.
 
 ## Command line:
