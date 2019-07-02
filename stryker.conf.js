@@ -10,10 +10,10 @@ module.exports = function (config) {
       'typescript'
     ],
     testRunner: "mocha",
-    reporter: ["html", "clear-text", "progress"],
+    reporters: ["html", "progress"],
     testFramework: "mocha",
     mochaOptions: {
-      files: ['test/helpers/**/*.js', 'test/unit/**/*.js']
+      spec: ['test/helpers/**/*.js', 'test/unit/**/*.js']
     },
     coverageAnalysis: "perTest",
     thresholds: {
