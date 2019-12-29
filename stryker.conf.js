@@ -15,6 +15,9 @@ module.exports = function (config) {
     mochaOptions: {
       spec: ['test/helpers/**/*.js', 'test/unit/**/*.js']
     },
+    dashboard: {
+      reportType: 'full'
+    },
     coverageAnalysis: "perTest",
     thresholds: {
       high: 90,

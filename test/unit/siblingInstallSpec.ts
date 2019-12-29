@@ -1,28 +1,24 @@
 import { expect } from 'chai';
-import * as fs from 'mz/fs';
-import * as path from 'path';
-import * as sinon from 'sinon';
+import fs from 'mz/fs';
+import path from 'path';
+import sinon from 'sinon';
 import * as helpers from '../../src/helpers';
 import * as index from '../../src/index';
 import { siblingInstall } from '../../src/siblingInstall';
 
 describe('siblingInstall', () => {
 
-    let sandbox: sinon.SinonSandbox;
-    let readdirStub: sinon.SinonStub;
-    let readPackageJson: sinon.SinonStub;
+    let readdirStub: sinon.SinonStub<[string | Buffer], Promise<string[]>>;
+    let readPackageJson: sinon.SinonStub<[string], Promise<index.PackageJson>>;
     let localInstallStub: { install: sinon.SinonStub };
 
     beforeEach(() => {
-        sandbox = sinon.createSandbox();
-        localInstallStub = { install: sandbox.stub() };
-        readdirStub = sandbox.stub(fs, 'readdir');
-        readPackageJson = sandbox.stub(helpers, 'readPackageJson');
-        sandbox.stub(index, 'progress');
-        sandbox.stub(index, 'LocalInstaller').returns(localInstallStub);
+        localInstallStub = { install: sinon.stub() };
+        readdirStub = sinon.stub(fs, 'readdir');
+        readPackageJson = sinon.stub(helpers, 'readPackageJson');
+        sinon.stub(index, 'progress');
+        sinon.stub(index, 'LocalInstaller').returns(localInstallStub);
     });
-
-    afterEach(() => sandbox.restore());
 
     it('should install packages from sibling dirs if they exist', async () => {
         // Arrange
@@ -35,10 +31,10 @@ describe('siblingInstall', () => {
             d: path.resolve('..', 'd')
         };
         readPackageJson
-            .withArgs(siblings.a).resolves({ localDependencies: { someName: `../${currentDirName}` } })
+            .withArgs(siblings.a).resolves(createPackageJson({ localDependencies: { someName: `../${currentDirName}` } }))
             .withArgs(siblings.b).rejects()
-            .withArgs(siblings.c).resolves({ localDependencies: { someOtherName: process.cwd() } })
-            .withArgs(siblings.d).resolves({ localDependencies: { someOtherName: 'some/other/localDep' } });
+            .withArgs(siblings.c).resolves(createPackageJson({ localDependencies: { someOtherName: process.cwd() } }))
+            .withArgs(siblings.d).resolves(createPackageJson({ localDependencies: { someOtherName: 'some/other/localDep' } }));
         localInstallStub.install.resolves();
 
         // Act
@@ -55,8 +51,17 @@ describe('siblingInstall', () => {
     it('should reject when install rejects', () => {
         // Arrange
         readdirStub.resolves(['a']);
-        readPackageJson.resolves({ localDependencies: { b: process.cwd() } });
+        readPackageJson.resolves(createPackageJson({ localDependencies: { b: process.cwd() } }));
         localInstallStub.install.rejects(new Error('some error'));
         return expect(siblingInstall()).rejectedWith('some error');
     });
+
+    function createPackageJson(overrides?: Partial<index.PackageJson>): index.PackageJson {
+        return {
+            name: 'a',
+            version: '1.2.0',
+            localDependencies: {},
+            ...overrides
+        };
+    }
 });

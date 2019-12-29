@@ -1,29 +1,25 @@
 import { expect } from 'chai';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { cli } from '../../src/cli';
 import * as index from '../../src/index';
 
 describe('cli', () => {
 
-    let sandbox: sinon.SinonSandbox;
     let optionsMock: {
         dependencies: string[];
         save: boolean;
         targetSiblings: boolean;
         validate: sinon.SinonStub;
     };
-    let currentDirectoryInstallStub: sinon.SinonStub;
-    let siblingInstallStub: sinon.SinonStub;
+    let currentDirectoryInstallStub: sinon.SinonStub<[index.Options], Promise<void>>;
+    let siblingInstallStub: sinon.SinonStub<[], Promise<void>>;
 
     beforeEach(() => {
-        sandbox = sinon.createSandbox();
-        optionsMock = { dependencies: [], save: false, targetSiblings: false, validate: sandbox.stub() };
-        sandbox.stub(index, 'Options').returns(optionsMock);
-        currentDirectoryInstallStub = sandbox.stub(index, 'currentDirectoryInstall');
-        siblingInstallStub = sandbox.stub(index, 'siblingInstall');
+        optionsMock = { dependencies: [], save: false, targetSiblings: false, validate: sinon.stub() };
+        sinon.stub(index, 'Options').returns(optionsMock);
+        currentDirectoryInstallStub = sinon.stub(index, 'currentDirectoryInstall');
+        siblingInstallStub = sinon.stub(index, 'siblingInstall');
     });
-
-    afterEach(() => sandbox.restore());
 
     describe('given a valid config', () => {
 

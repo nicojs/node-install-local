@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import * as fs from 'mz/fs';
-import * as os from 'os';
-import * as path from 'path';
+import fs from 'mz/fs';
+import os from 'os';
+import path from 'path';
 import * as utils from '../../src/utils';
 
 describe('utils integration', () => {
