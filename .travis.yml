@@ -6,5 +6,6 @@ node_js:
 script: npm run all
 jobs:
   include:
-  - node_js: "node"
+  - name: "Mutation testing"
+    node_js: "node"
     script: "npm run test:mutation"
