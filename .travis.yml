@@ -3,9 +3,8 @@ node_js:
   - "node"
   - "lts/*"
   - "8"
-install: npm install
-script: npm run ci
+script: npm run all
 jobs:
   include:
   - node_js: "node"
-    script: "npm run ci && npm run test:mutation"
+    script: "npm run test:mutation"
