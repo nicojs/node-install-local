@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "typings": "src/index.d.ts",
   "scripts": {
-    "all": "npm run clean && npm run build && npm run lint && npm run test && npm run test:mutation",
+    "all": "npm run clean && npm run build && npm run lint && npm run test",
     "clean": "rimraf src/**/*.js src/**/*.map src/**/*.d.ts test/**/*.js test/**/*.map test/**/*.d.ts",
     "build": "tsc -p .",
     "lint": "tslint -p .",

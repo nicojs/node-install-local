@@ -2,5 +2,10 @@ language: node_js
 node_js:
   - "node"
   - "lts/*"
-install: npm install
+  - "8"
 script: npm run all
+jobs:
+  include:
+  - name: "Mutation testing"
+    node_js: "node"
+    script: "npm run test:mutation"

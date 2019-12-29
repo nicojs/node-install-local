@@ -10,7 +10,7 @@ module.exports = function (config) {
       'typescript'
     ],
     testRunner: "mocha",
-    reporters: ["html", "progress"],
+    reporters: ["html", "progress", "dashboard"],
     testFramework: "mocha",
     mochaOptions: {
       spec: ['test/helpers/**/*.js', 'test/unit/**/*.js']
