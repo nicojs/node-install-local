@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { exec } from 'mz/child_process';
-import * as fs from 'mz/fs';
-import * as os from 'os';
-import * as path from 'path';
-import * as rimraf from 'rimraf';
+import fs from 'mz/fs';
+import os from 'os';
+import path from 'path';
+import rimraf from 'rimraf';
 import { Package } from '../../src/index';
 import { PackageJson } from './../../src/index';
 

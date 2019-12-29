@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
-import * as fs from 'mz/fs';
-import * as path from 'path';
+import fs from 'mz/fs';
+import path from 'path';
 import { readPackageJson } from './helpers';
 import { ListByPackage, LocalInstaller, Package, progress } from './index';
 

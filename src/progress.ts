@@ -1,10 +1,10 @@
-import * as os from 'os';
-import * as path from 'path';
+import os from 'os';
+import path from 'path';
 import { LocalInstaller } from './LocalInstaller';
 
 class ProgressKeeper {
     private current = -1;
-    constructor(private stream: NodeJS.Socket, private pattern: string, private maxTicks: number) {
+    constructor(private stream: NodeJS.WriteStream, private pattern: string, private maxTicks: number) {
         this.tick();
     }
 

@@ -1,12 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "es5",
-      "es2015.collection",
-      "es2015.promise",
-      "es2015.core"
-    ],
+    "target": "es2017",
     "declaration": true,
     "module": "commonjs",
     "strict": true,
@@ -14,7 +8,8 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "esModuleInterop": true
   },
   "exclude": [
     "sample",

@@ -1,5 +1,5 @@
-import * as fs from 'mz/fs';
-import * as path from 'path';
+import fs from 'mz/fs';
+import path from 'path';
 import { Dependencies, InstallTarget, Options, Package } from './index';
 
 export function saveIfNeeded(options: Options): (targets: InstallTarget[]) => Promise<void> {

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { currentDirectoryInstall } from '../../src/currentDirectoryInstall';
 import * as helpers from '../../src/helpers';
 import * as index from '../../src/index';
@@ -7,22 +7,18 @@ import { options, packageJson } from '../helpers/producers';
 
 describe('currentDirectoryInstall', () => {
 
-    let sandbox: sinon.SinonSandbox;
     let localInstallerStub: { install: sinon.SinonStub };
-    let progressStub: sinon.SinonStub;
-    let saveIfNeededStub: sinon.SinonStub;
-    let readPackageJsonStub: sinon.SinonStub;
+    let progressStub: sinon.SinonStub<[index.LocalInstaller, (NodeJS.WriteStream | undefined)?], void>;
+    let saveIfNeededStub: sinon.SinonStub<[index.Options], (targets: index.InstallTarget[]) => Promise<void>>;
+    let readPackageJsonStub: sinon.SinonStub<[string], Promise<index.PackageJson>>;
 
     beforeEach(() => {
-        sandbox = sinon.createSandbox();
-        localInstallerStub = { install: sandbox.stub() };
-        sandbox.stub(index, 'LocalInstaller').returns(localInstallerStub);
-        saveIfNeededStub = sandbox.stub(index, 'saveIfNeeded');
-        progressStub = sandbox.stub(index, 'progress');
-        readPackageJsonStub = sandbox.stub(helpers, 'readPackageJson');
+        localInstallerStub = { install: sinon.stub() };
+        sinon.stub(index, 'LocalInstaller').returns(localInstallerStub);
+        saveIfNeededStub = sinon.stub(index, 'saveIfNeeded');
+        progressStub = sinon.stub(index, 'progress');
+        readPackageJsonStub = sinon.stub(helpers, 'readPackageJson');
     });
-
-    afterEach(() => sandbox.restore());
 
     it('should install the local dependencies if none were provided', async () => {
         localInstallerStub.install.resolves();

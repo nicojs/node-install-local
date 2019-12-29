@@ -7,43 +7,10 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceRoot}/bin/install-local",
-            "args": [
-                "--target-siblings"
-            ],
-            "cwd": "${workspaceRoot}/../../stryker-mutator/stryker/packages/stryker-api",
-            "outFiles": [
-                "src/**/*.js",
-                "test/**/*.js"
-            ],
-            "sourceMaps": true
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Stryker",
-            "program": "${workspaceRoot}/node_modules/stryker/src/stryker-cli",
-            "args": [
-                "run"
-            ],
-            "console": "integratedTerminal",
-            "sourceMaps": true,
-            "outFiles": [
-                "src/**/*.js",
-                "test/**/*.js"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "All Tests",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
-                "-u",
-                "tdd",
-                "--timeout",
-                "999999",
+                "--no-timeout",
                 "--colors",
                 "${workspaceRoot}/test/**/*.js"
             ],
@@ -51,6 +18,9 @@
             "outFiles": [
                 "src/**/*.js",
                 "test/**/*.js"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
             ]
         },
         {
@@ -59,10 +29,7 @@
             "name": "Unit Tests",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
-                "-u",
-                "tdd",
-                "--timeout",
-                "999999",
+                "--no-timeout",
                 "--colors",
                 "${workspaceRoot}/test/helpers",
                 "${workspaceRoot}/test/unit"
@@ -71,6 +38,9 @@
             "outFiles": [
                 "src/**/*.js",
                 "test/**/*.js"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
             ]
         }
     ]

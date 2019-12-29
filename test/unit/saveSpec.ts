@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import * as fs from 'mz/fs';
-import * as path from 'path';
-import * as sinon from 'sinon';
+import fs from 'mz/fs';
+import path from 'path';
+import sinon from 'sinon';
 import { saveIfNeeded } from '../../src/save';
 import { InstallTarget } from './../../src/index';
 import { Options } from './../../src/Options';
@@ -9,7 +9,6 @@ import { Options } from './../../src/Options';
 describe('saveIfNeeded', () => {
 
     let sut: (targets: InstallTarget[]) => Promise<void>;
-    let sandbox: sinon.SinonSandbox;
     let writeFileStub: sinon.SinonStub;
     let input: InstallTarget[];
 
@@ -28,11 +27,8 @@ describe('saveIfNeeded', () => {
                 version: '0.0.2'
             }
         }];
-        sandbox = sinon.createSandbox();
-        writeFileStub = sandbox.stub(fs, 'writeFile');
+        writeFileStub = sinon.stub(fs, 'writeFile') as any;
     });
-
-    afterEach(() => sandbox.restore());
 
     describe('when no option to save', () => {
         beforeEach(() => {

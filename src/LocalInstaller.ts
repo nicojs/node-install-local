@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
 import * as _ from 'lodash';
 import { exec, ExecOptions } from 'mz/child_process';
-import * as fs from 'mz/fs';
-import * as path from 'path';
+import fs from 'mz/fs';
+import path from 'path';
 import { readPackageJson } from './helpers';
 import { InstallTarget, PackageJson } from './index';
 import { del, getRandomTmpDir } from './utils';

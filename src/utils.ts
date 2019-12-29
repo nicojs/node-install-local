@@ -1,7 +1,7 @@
-import * as os from 'os';
-import * as path from 'path';
-import * as rimraf from 'rimraf';
-import * as uniqid from 'uniqid';
+import os from 'os';
+import path from 'path';
+import rimraf from 'rimraf';
+import uniqid from 'uniqid';
 
 export function del(filename: string) {
     return new Promise((resolve, reject) => rimraf(filename, (err) => {

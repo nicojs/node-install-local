@@ -1,22 +1,15 @@
 import { expect } from 'chai';
-import * as fs from 'mz/fs';
-import * as path from 'path';
-import * as sinon from 'sinon';
+import fs from 'mz/fs';
+import path from 'path';
+import sinon from 'sinon';
 import { readPackageJson } from '../../src/helpers';
 
 describe('Helpers', () => {
-    let sandbox: sinon.SinonSandbox;
-    let readFileStub: sinon.SinonStub;
+    let readFileStub: sinon.SinonStub<[string | number | Buffer, string | { encoding: string; flag?: string | undefined; }], Promise<string>>;
 
     beforeEach(() => {
-        sandbox = sinon.createSandbox();
-
-        readFileStub = sandbox.stub(fs, 'readFile');
+        readFileStub = sinon.stub(fs, 'readFile');
         readFileStub.resolves('{}');
-    });
-
-    afterEach(() => {
-        sandbox.restore();
     });
 
     it('should call fs.readFile with the path and utf8 as arguments when readPackageJson is called', async () => {
