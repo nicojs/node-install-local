@@ -1,3 +1,17 @@
+# [2.0.0](https://github.com/nicojs/node-install-local/compare/v1.0.0...v2.0.0) (2019-12-29)
+
+
+### Features
+
+* **deps:** dependency update ([#25](https://github.com/nicojs/node-install-local/issues/25)) ([8e46851](https://github.com/nicojs/node-install-local/commit/8e46851a34be1c3654a40624f06444c9d542f871))
+
+
+### BREAKING CHANGES
+
+* **deps:** Output is now es2017. Drop support for node < 8.
+
+
+
 # [1.0.0](https://github.com/nicojs/node-install-local/compare/v0.6.2...v1.0.0) (2019-02-12)
 
 
