@@ -96,7 +96,7 @@ export class LocalInstaller extends EventEmitter {
         if (this.options.npmEnv) {
             options.env = this.options.npmEnv;
         }
-        return exec(`npm i --no-save ${toInstall}`, options).then(([stdout, stderr]) =>
+        return exec(`npm i --production --no-save ${toInstall}`, options).then(([stdout, stderr]) =>
             void this.emit('installed', target.packageJson.name, stdout.toString(), stderr.toString()));
     }
 
