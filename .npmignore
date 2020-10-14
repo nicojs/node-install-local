@@ -1,8 +1,7 @@
 **/*
 !bin/**
 !src/**
-src/**/*.map
-src/**/*.ts
+!dist/src/**
 !src/**/*.d.ts
 !readme.md
 !CHANGELOG.md
