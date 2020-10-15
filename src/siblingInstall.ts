@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import fs from 'mz/fs';
+import { promises as fs} from 'fs';
 import path from 'path';
 import { readPackageJson } from './helpers';
 import { ListByPackage, LocalInstaller, Package, progress } from './index';

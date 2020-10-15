@@ -1,7 +1,9 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { cli } from '../../src/cli';
-import * as index from '../../src/index';
+import * as siblingInstallModule from '../../src/siblingInstall';
+import * as optionsModule from '../../src/Options';
+import * as currentDirectoryInstallModule from '../../src/currentDirectoryInstall';
 
 describe('cli', () => {
 
@@ -11,14 +13,14 @@ describe('cli', () => {
         targetSiblings: boolean;
         validate: sinon.SinonStub;
     };
-    let currentDirectoryInstallStub: sinon.SinonStub<[index.Options], Promise<void>>;
+    let currentDirectoryInstallStub: sinon.SinonStub<[optionsModule.Options], Promise<void>>;
     let siblingInstallStub: sinon.SinonStub<[], Promise<void>>;
 
     beforeEach(() => {
         optionsMock = { dependencies: [], save: false, targetSiblings: false, validate: sinon.stub() };
-        sinon.stub(index, 'Options').returns(optionsMock);
-        currentDirectoryInstallStub = sinon.stub(index, 'currentDirectoryInstall');
-        siblingInstallStub = sinon.stub(index, 'siblingInstall');
+        sinon.stub(optionsModule, 'Options').returns(optionsMock);
+        currentDirectoryInstallStub = sinon.stub(currentDirectoryInstallModule, 'currentDirectoryInstall');
+        siblingInstallStub = sinon.stub(siblingInstallModule, 'siblingInstall');
     });
 
     describe('given a valid config', () => {

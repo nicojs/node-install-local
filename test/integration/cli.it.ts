@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { exec } from 'mz/child_process';
-import fs from 'mz/fs';
+import execa from 'execa';
+import { promises as fs} from 'fs';
 import os from 'os';
 import path from 'path';
 import rimraf from 'rimraf';
@@ -8,6 +8,9 @@ import { Package } from '../../src/index';
 import { PackageJson } from './../../src/index';
 
 const installLocal = path.resolve('bin', 'install-local');
+
+const tmpDir = path.resolve(os.tmpdir(), 'local-installer-it');
+const tmpFolder = (name: string) => path.resolve(tmpDir, name);
 
 describe('install-local cli given 3 packages', () => {
 
@@ -23,6 +26,7 @@ describe('install-local cli given 3 packages', () => {
             two: new PackageHelper('two'),
             three: new PackageHelper('three')
         };
+        console.log(tmpDir);
         await rm(tmpDir);
         await fs.mkdir(tmpDir);
         await Promise.all([
@@ -31,9 +35,9 @@ describe('install-local cli given 3 packages', () => {
             packages.three.writePackage()]);
     });
 
-    it('should install 2 packages without changing the package.json', async () => {
+    it.only('should install 2 packages without changing the package.json', async () => {
         const cmd = `node ${installLocal} ${packages.two.directory} ${packages.three.directory}`;
-        await exec(cmd, { cwd: packages.one.directory });
+        await execa.command(cmd, { cwd: packages.one.directory });
         const installed = await packages.one.readdir('node_modules');
         const packageJson = await packages.one.readFile('package.json');
         expect(installed.sort()).to.deep.eq(['three', 'two']);
@@ -43,7 +47,7 @@ describe('install-local cli given 3 packages', () => {
     it('should install 2 packages and update the package.json if -S is provided', async () => {
         const cmd = `node ${installLocal} -S ${packages.two.directory} ${packages.three.directory}`;
         const expectedPackageJson = Object.assign({ localDependencies: { three: '../three', two: '../two' } }, packages.one.packageJson);
-        await exec(cmd, { cwd: packages.one.directory });
+        await execa.command(cmd, { cwd: packages.one.directory });
         const installed = await packages.one.readdir('node_modules');
         const packageJson = await packages.one.readFile('package.json');
         expect(installed.sort()).to.deep.eq(['three', 'two']);
@@ -55,7 +59,7 @@ describe('install-local cli given 3 packages', () => {
             two: '../two'
         };
         await packages.one.writePackage();
-        await exec(`node ${installLocal}`, { cwd: packages.one.directory });
+        await execa.command(`node ${installLocal}`, { cwd: packages.one.directory });
         const installed = await packages.one.readdir('node_modules');
         expect(installed).to.deep.eq(['two']);
     });
@@ -65,7 +69,7 @@ describe('install-local cli given 3 packages', () => {
             two: '../two'
         };
         await packages.one.writePackage();
-        await exec(`node ${installLocal} --target-siblings`, { cwd: packages.two.directory });
+        await execa.command(`node ${installLocal} --target-siblings`, { cwd: packages.two.directory });
         const installed = await packages.one.readdir('node_modules');
         expect(installed).to.deep.eq(['two']);
     });
@@ -76,7 +80,7 @@ describe('install-local cli given 3 packages', () => {
         };
         packages.two.packageJson.name = '@scoped/two';
         await Promise.all([packages.one.writePackage(), packages.two.writePackage()]);
-        await exec(`node ${installLocal}`, { cwd: packages.one.directory });
+        await execa.command(`node ${installLocal}`, { cwd: packages.one.directory });
     });
 });
 
@@ -87,9 +91,6 @@ const rm = (directory: string) => new Promise((res, rej) => rimraf(directory, er
         res();
     }
 }));
-
-const tmpDir = path.resolve(os.tmpdir(), 'local-installer-it');
-const tmpFolder = (name: string) => path.resolve(tmpDir, name);
 
 class PackageHelper implements Package {
     public directory: string;
@@ -110,12 +111,12 @@ class PackageHelper implements Package {
         return fs.readFile(path.resolve(this.directory, file), 'utf8');
     }
 
-    public writePackage() {
-        return rm(this.directory)
-            .then(() => fs.mkdir(this.directory))
-            .then(() => Promise.all([
-                fs.writeFile(path.resolve(this.directory, 'package.json'), JSON.stringify(this.packageJson, null, 2), 'utf8'),
-                fs.writeFile(path.resolve(this.directory, this.name), 'utf8', '')
-            ]));
+    public async writePackage() {
+        await rm(this.directory);
+        await fs.mkdir(this.directory);
+        return await Promise.all([
+            fs.writeFile(path.resolve(this.directory, 'package.json'), JSON.stringify(this.packageJson, null, 2), 'utf8'),
+            fs.writeFile(path.resolve(this.directory, this.name), '', 'utf8')
+        ]);
     }
 }

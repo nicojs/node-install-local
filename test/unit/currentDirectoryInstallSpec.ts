@@ -1,22 +1,26 @@
+import type { WriteStream } from 'tty';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { currentDirectoryInstall } from '../../src/currentDirectoryInstall';
 import * as helpers from '../../src/helpers';
-import * as index from '../../src/index';
+import * as localInstallerModule from '../../src/LocalInstaller';
+import * as progressModule from '../../src/progress';
+import * as saveModule from '../../src/save';
 import { options, packageJson } from '../helpers/producers';
+import { InstallTarget, Options, PackageJson } from '../../src';
 
 describe('currentDirectoryInstall', () => {
 
     let localInstallerStub: { install: sinon.SinonStub };
-    let progressStub: sinon.SinonStub<[index.LocalInstaller, (NodeJS.WriteStream | undefined)?], void>;
-    let saveIfNeededStub: sinon.SinonStub<[index.Options], (targets: index.InstallTarget[]) => Promise<void>>;
-    let readPackageJsonStub: sinon.SinonStub<[string], Promise<index.PackageJson>>;
+    let progressStub: sinon.SinonStub<[localInstallerModule.LocalInstaller, WriteStream?], void>;
+    let saveIfNeededStub: sinon.SinonStub<[Options], (targets: InstallTarget[]) => Promise<void>>;
+    let readPackageJsonStub: sinon.SinonStub<[string], Promise<PackageJson>>;
 
     beforeEach(() => {
         localInstallerStub = { install: sinon.stub() };
-        sinon.stub(index, 'LocalInstaller').returns(localInstallerStub);
-        saveIfNeededStub = sinon.stub(index, 'saveIfNeeded');
-        progressStub = sinon.stub(index, 'progress');
+        sinon.stub(localInstallerModule, 'LocalInstaller').returns(localInstallerStub);
+        saveIfNeededStub = sinon.stub(saveModule, 'saveIfNeeded');
+        progressStub = sinon.stub(progressModule, 'progress');
         readPackageJsonStub = sinon.stub(helpers, 'readPackageJson');
     });
 
@@ -25,8 +29,8 @@ describe('currentDirectoryInstall', () => {
         readPackageJsonStub.resolves(packageJson({ localDependencies: { a: '../a', b: '../b' } }));
         const expectedOptions = options({ dependencies: [] });
         await currentDirectoryInstall(expectedOptions);
-        expect(index.LocalInstaller).calledWith({ '.': ['../a', '../b'] });
-        expect(index.LocalInstaller).calledWithNew;
+        expect(localInstallerModule.LocalInstaller).calledWith({ '.': ['../a', '../b'] });
+        expect(localInstallerModule.LocalInstaller).calledWithNew;
         expect(localInstallerStub.install).called;
         expect(progressStub).to.have.been.calledWith(localInstallerStub);
         expect(readPackageJsonStub).to.have.been.calledWith('.');
@@ -37,7 +41,7 @@ describe('currentDirectoryInstall', () => {
         localInstallerStub.install.resolves();
         await currentDirectoryInstall(options({ dependencies: ['a', 'b'] }));
         expect(readPackageJsonStub).not.called;
-        expect(index.LocalInstaller).calledWith({ '.': ['a', 'b'] });
+        expect(localInstallerModule.LocalInstaller).calledWith({ '.': ['a', 'b'] });
         expect(localInstallerStub.install).called;
     });
 
@@ -52,8 +56,8 @@ describe('currentDirectoryInstall', () => {
         readPackageJsonStub.resolves(packageJson({}));
         const expectedOptions = options({ dependencies: [] });
         await currentDirectoryInstall(expectedOptions);
-        expect(index.LocalInstaller).calledWith({ '.': [] });
-        expect(index.LocalInstaller).calledWithNew;
+        expect(localInstallerModule.LocalInstaller).calledWith({ '.': [] });
+        expect(localInstallerModule.LocalInstaller).calledWithNew;
         expect(localInstallerStub.install).called;
         expect(progressStub).to.have.been.calledWith(localInstallerStub);
         expect(readPackageJsonStub).to.have.been.calledWith('.');

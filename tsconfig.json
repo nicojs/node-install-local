@@ -3,6 +3,7 @@
     "target": "es2017",
     "declaration": true,
     "module": "commonjs",
+    "outDir": "dist",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -13,7 +14,7 @@
   },
   "exclude": [
     "sample",
-    "tasks",
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

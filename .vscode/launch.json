@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Attach",
+            "port": 9229,
+            "request": "attach",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "All Tests",
@@ -12,12 +21,12 @@
             "args": [
                 "--no-timeout",
                 "--colors",
-                "${workspaceRoot}/test/**/*.js"
+                "${workspaceRoot}/dist/test/unit/*.js",
+                "${workspaceRoot}/dist/test/integration/*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "outFiles": [
-                "src/**/*.js",
-                "test/**/*.js"
+                "${workspaceRoot}/dist/**/*.js"
             ],
             "skipFiles": [
                 "<node_internals>/**"
@@ -31,13 +40,11 @@
             "args": [
                 "--no-timeout",
                 "--colors",
-                "${workspaceRoot}/test/helpers",
-                "${workspaceRoot}/test/unit"
+                "${workspaceRoot}/dist/test/unit/**/*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart",
             "outFiles": [
-                "src/**/*.js",
-                "test/**/*.js"
+                "${workspaceRoot}/dist/**/*.js"
             ],
             "skipFiles": [
                 "<node_internals>/**"

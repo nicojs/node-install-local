@@ -6,4 +6,8 @@ import sinonChai from 'sinon-chai';
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-afterEach(() => sinon.restore());
+export const mochaHooks = {
+    afterEach() {
+        sinon.restore();
+    }
+}

@@ -1,3 +1,4 @@
+import type { WriteStream } from 'tty';
 import os from 'os';
 import path from 'path';
 import { LocalInstaller } from './LocalInstaller';
@@ -31,7 +32,7 @@ class ProgressKeeper {
     }
 }
 
-export function progress(installer: LocalInstaller, stream = process.stdout) {
+export function progress(installer: LocalInstaller, stream: WriteStream = process.stdout) {
 
     let progressKeeper: ProgressKeeper;
     installer.on('packing_start', _ => progressKeeper = new ProgressKeeper(stream, '[install-local] packing - :count/:max', _.length));

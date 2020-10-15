@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import fs from 'mz/fs';
+import { promises as fs} from 'fs';
 import os from 'os';
 import path from 'path';
 import * as utils from '../../src/utils';
@@ -11,15 +11,13 @@ describe('utils integration', () => {
         await fs.mkdir(dir);
         await fs.writeFile(path.resolve(dir, 'file.js'), 'console.log("hello world")', 'utf8');
         await utils.del(dir);
-        const actualExists = await fs.exists(dir);
-        expect(actualExists).false;
+        await expect(fs.access(dir)).rejected;
     });
 
     it('should be able to delete a file', async () => {
         const file = path.resolve(os.tmpdir(), 'file.js');
         await fs.writeFile(file, 'console.log("hello world")', 'utf8');
         await utils.del(file);
-        const actualExists = await fs.exists(file);
-        expect(actualExists).false;
+        await expect(fs.access(file)).rejected;
     });
 });

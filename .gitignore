@@ -1,7 +1,6 @@
 .stryker-tmp
 reports
 node_modules
-src/**/*.js
-test/**/*.js
 *.map
 *.d.ts
+/dist

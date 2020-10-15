@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import fs from 'mz/fs';
+import { promises as fs} from 'fs';
 import path from 'path';
 import sinon from 'sinon';
 import { saveIfNeeded } from '../../src/save';

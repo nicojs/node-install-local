@@ -1,11 +1,12 @@
-import fs from 'mz/fs';
+import { promises as fs} from 'fs';
 import path from 'path';
 import { Dependencies, InstallTarget, Options, Package } from './index';
 
 export function saveIfNeeded(options: Options): (targets: InstallTarget[]) => Promise<void> {
-    return targets => {
+    return async targets => {
         if (options.save) {
-            return Promise.all(targets.map(save)).then(() => undefined);
+            await Promise.all(targets.map(save));
+            return undefined;
         } else {
             return Promise.resolve();
         }

@@ -1,13 +1,14 @@
 import { expect } from 'chai';
-import fs from 'mz/fs';
+import { promises as fs} from 'fs';
 import path from 'path';
 import sinon from 'sinon';
 import { readPackageJson } from '../../src/helpers';
 
 describe('Helpers', () => {
-    let readFileStub: sinon.SinonStub<[string | number | Buffer, string | { encoding: string; flag?: string | undefined; }], Promise<string>>;
+    let readFileStub: sinon.SinonStub<any, Promise<string>>;
 
     beforeEach(() => {
+        // @ts-expect-error picks the wrong overload
         readFileStub = sinon.stub(fs, 'readFile');
         readFileStub.resolves('{}');
     });

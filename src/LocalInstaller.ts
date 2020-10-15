@@ -1,11 +1,11 @@
+import flatMap from 'lodash.flatmap';
 import { EventEmitter } from 'events';
-import * as _ from 'lodash';
-import { exec, ExecOptions } from 'mz/child_process';
-import fs from 'mz/fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { readPackageJson } from './helpers';
 import { InstallTarget, PackageJson } from './index';
-import { del, getRandomTmpDir } from './utils';
+import { exec, del, getRandomTmpDir } from './utils';
+import type { Options as ExecaOptions } from 'execa';
 
 interface PackageByDirectory {
     [directory: string]: PackageJson;
@@ -25,9 +25,6 @@ export interface ListByPackage {
 
 const TEN_MEGA_BYTE = 1024 * 1024 * 10;
 
-function quotify(value: string) {
-    return `"${value}"`;
-}
 export class LocalInstaller extends EventEmitter {
     private sourcesByTarget: ListByPackage;
     private options: Options;
@@ -78,37 +75,31 @@ export class LocalInstaller extends EventEmitter {
         return fs.mkdir(tmpDir);
     }
 
-    private installAll(installTargets: InstallTarget[]): Promise<void> {
+    private async installAll(installTargets: InstallTarget[]): Promise<void> {
         this.emit('install_start', this.sourcesByTarget);
-        return Promise.all(installTargets.map(target => this.installOne(target)))
-            .then(() => void this.emit('install_end'));
+        await Promise.all(installTargets.map(target => this.installOne(target)));
+        this.emit('install_end');
     }
 
-    private installOne(target: InstallTarget): Promise<void> {
+    private async installOne(target: InstallTarget): Promise<void> {
         const toInstall = target.sources
-            .map(source => resolvePackFile(this.uniqueDir, source.packageJson))
-            .map(quotify)
-            .join(' ');
-        const options: ExecOptions = {
+            .map(source => resolvePackFile(this.uniqueDir, source.packageJson));
+        const options: ExecaOptions<string> = {
             cwd: target.directory,
-            maxBuffer: TEN_MEGA_BYTE
+            maxBuffer: TEN_MEGA_BYTE,
+            env: this.options.npmEnv
         };
-        if (this.options.npmEnv) {
-            options.env = this.options.npmEnv;
-        }
-        return exec(`npm i --no-save ${toInstall}`, options).then(([stdout, stderr]) =>
-            void this.emit('installed', target.packageJson.name, stdout.toString(), stderr.toString()));
+        const { stdout, stderr } = await exec('npm', ['i', '--no-save', ...toInstall], options);
+        this.emit('installed', target.packageJson.name, stdout.toString(), stderr.toString());
     }
 
-    private resolvePackages(): Promise<PackageByDirectory> {
-        const uniqueDirectories = _.uniq(Object.keys(this.sourcesByTarget)
-            .concat(_.flatMap(Object.keys(this.sourcesByTarget), target => this.sourcesByTarget[target])));
-        const allPackages = Promise.all(uniqueDirectories.map(directory => readPackageJson(directory).then(packageJson => ({ directory, packageJson }))));
-        return allPackages.then(packages => {
-            const packageByDirectory: PackageByDirectory = {};
-            packages.forEach(pkg => packageByDirectory[pkg.directory] = pkg.packageJson);
-            return packageByDirectory;
-        });
+    private async resolvePackages(): Promise<PackageByDirectory> {
+        const uniqueDirectories = new Set(Object.keys(this.sourcesByTarget).concat(flatMap(Object.keys(this.sourcesByTarget), target => this.sourcesByTarget[target])));
+        const allPackages = Promise.all(Array.from(uniqueDirectories).map(directory => readPackageJson(directory).then(packageJson => ({ directory, packageJson }))));
+        const packages = await allPackages;
+        const packageByDirectory: PackageByDirectory = {};
+        packages.forEach(pkg => packageByDirectory[pkg.directory] = pkg.packageJson);
+        return packageByDirectory;
     }
 
     private identifyInstallTargets(packages: PackageByDirectory): InstallTarget[] {
@@ -124,16 +115,16 @@ export class LocalInstaller extends EventEmitter {
         return installTargets;
     }
 
-    private packAll() {
-        const allSources = _.uniq(_.flatMap(Object.keys(this.sourcesByTarget), target => this.sourcesByTarget[target]));
+    private async packAll(): Promise<void> {
+        const allSources = Array.from(new Set(flatMap(Object.keys(this.sourcesByTarget), target => this.sourcesByTarget[target])));
         this.emit('packing_start', allSources);
-        return Promise.all(allSources.map(source => this.packOne(source)))
-            .then(() => this.emit('packing_end'));
+        await Promise.all(allSources.map(source => this.packOne(source)));
+        this.emit('packing_end');
     }
 
-    private packOne(directory: string): Promise<void> {
-        return exec(`npm pack ${quotify(directory)}`, { cwd: this.uniqueDir, maxBuffer: TEN_MEGA_BYTE })
-            .then(() => void this.emit('packed', directory));
+    private async packOne(directory: string): Promise<void> {
+        await exec('npm', ['pack', directory], { cwd: this.uniqueDir, maxBuffer: TEN_MEGA_BYTE });
+        this.emit('packed', directory);
     }
 
     private removeTmpDirectory(): void {
@@ -157,7 +148,7 @@ function resolvePackFile(dir: string, pkg: PackageJson) {
 export function resolve(packagesByTarget: ListByPackage) {
     const resolvedPackages: ListByPackage = {};
     Object.keys(packagesByTarget).forEach(localTarget => {
-        resolvedPackages[path.resolve(localTarget)] = _.uniq(packagesByTarget[localTarget].map(pkg => path.resolve(pkg)));
+        resolvedPackages[path.resolve(localTarget)] = Array.from(new Set(packagesByTarget[localTarget].map(pkg => path.resolve(pkg))));
     });
     return resolvedPackages;
 }

@@ -1,16 +1,17 @@
 import { expect } from 'chai';
-import child_process from 'mz/child_process';
-import fs from 'mz/fs';
+import type { ExecaReturnValue } from 'execa';
+import { promises as fs } from 'fs';
 import os from 'os';
 import { resolve } from 'path';
 import sinon from 'sinon';
 import * as utils from '../../src/utils';
 import { LocalInstaller } from './../../src/LocalInstaller';
 const TEN_MEGA_BYTE = 1024 * 1024 * 10;
+
 describe('LocalInstaller install', () => {
 
     class TestHelper {
-        public execStub = sinon.stub(child_process, 'exec');
+        public execStub = sinon.stub(utils, 'exec');
         public mkdirStub = sinon.stub(fs, 'mkdir');
         public readFileStub = sinon.stub(fs, 'readFile');
         public rimrafStub = sinon.stub(utils, 'del');
@@ -20,6 +21,20 @@ describe('LocalInstaller install', () => {
     let sut: LocalInstaller;
     let helper: TestHelper;
     const tmpDir = resolve(os.tmpdir(), 'node-local-install-5a6s4df65asdas');
+
+    function createExecaResult(overrides?: Partial<ExecaReturnValue<string>>): ExecaReturnValue<string> {
+        return {
+            command: '',
+            exitCode: 0,
+            isCanceled: false,
+            failed: false,
+            killed: false,
+            stderr: '',
+            stdout: '',
+            timedOut: false,
+            ...overrides
+        }
+    }
 
     beforeEach(() => {
         helper = new TestHelper();
@@ -33,7 +48,7 @@ describe('LocalInstaller install', () => {
         beforeEach(() => {
             sut = new LocalInstaller({ '/a': ['b', 'c'], 'd': ['/e'] });
             stubPackageJson({ '/a': 'a', 'b': 'b', 'c': 'c', 'd': 'd', '/e': 'e' });
-            helper.execStub.resolves([Buffer.from('stdout'), Buffer.from('stderr')]);
+            helper.execStub.resolves(createExecaResult({ stdout: 'stdout', stderr: 'stderr' }));
             helper.rimrafStub.resolves();
         });
 
@@ -46,17 +61,17 @@ describe('LocalInstaller install', () => {
 
         it('should pack correct packages', async () => {
             await sut.install();
-            expect(helper.execStub).calledWith(`npm pack "${resolve('b')}"`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
-            expect(helper.execStub).calledWith(`npm pack "${resolve('c')}"`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
-            expect(helper.execStub).calledWith(`npm pack "${resolve('/e')}"`, { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
+            expect(helper.execStub).calledWith('npm', ['pack', resolve('b')], { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
+            expect(helper.execStub).calledWith('npm', ['pack', resolve('c')], { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
+            expect(helper.execStub).calledWith('npm', ['pack', resolve('/e')], { cwd: tmpDir, maxBuffer: TEN_MEGA_BYTE });
         });
 
         it('should install correct packages', async () => {
             await sut.install();
-            expect(helper.execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')} ${tmp('c-0.0.2.tgz')}`,
-                { cwd: resolve('/a'), maxBuffer: TEN_MEGA_BYTE });
-            expect(helper.execStub).calledWith(`npm i --no-save ${tmp('e-0.0.4.tgz')}`,
-                { cwd: resolve('d'), maxBuffer: TEN_MEGA_BYTE });
+            expect(helper.execStub).calledWith('npm', ['i', '--no-save', tmp('b-0.0.1.tgz'), tmp('c-0.0.2.tgz')],
+                { cwd: resolve('/a'), env: undefined, maxBuffer: TEN_MEGA_BYTE });
+            expect(helper.execStub).calledWith('npm', ['i', '--no-save', tmp('e-0.0.4.tgz')],
+                { cwd: resolve('d'), env: undefined, maxBuffer: TEN_MEGA_BYTE });
         });
 
         it('should emit all events', async () => {
@@ -95,13 +110,13 @@ describe('LocalInstaller install', () => {
         beforeEach(() => {
             sut = new LocalInstaller({ '/a': ['b'] });
             stubPackageJson({ '/a': 'a', 'b': '@s/b' });
-            helper.execStub.resolves([Buffer.from('stdout'), Buffer.from('stderr')]);
+            helper.execStub.resolves(createExecaResult({ stdout: 'stdout', stderr: 'stderr' }));
             helper.rimrafStub.resolves();
         });
 
         it('should install scoped packages', async () => {
             await sut.install();
-            expect(helper.execStub).calledWith(`npm i --no-save ${tmp('s-b-0.0.1.tgz')}`);
+            expect(helper.execStub).calledWith('npm', ['i', '--no-save', tmp('s-b-0.0.1.tgz')]);
         });
     });
 
@@ -110,13 +125,14 @@ describe('LocalInstaller install', () => {
         beforeEach(() => {
             sut = new LocalInstaller({ '/a': ['b'] }, { npmEnv });
             stubPackageJson({ '/a': 'a', 'b': 'b' });
-            helper.execStub.resolves([Buffer.from('stdout'), Buffer.from('stderr')]);
+            helper.execStub.resolves(createExecaResult({ stdout: 'stdout', stderr: 'stderr' }));
             helper.rimrafStub.resolves();
         });
 
         it('should call npm with correct env vars', async () => {
             await sut.install();
-            expect(helper.execStub).calledWith(`npm i --no-save ${tmp('b-0.0.1.tgz')}`, { env: npmEnv, cwd: resolve('/a'), maxBuffer: TEN_MEGA_BYTE });
+            expect(helper.execStub).calledWith('npm', ['i', '--no-save', tmp('b-0.0.1.tgz')], 
+              { env: npmEnv, cwd: resolve('/a'), maxBuffer: TEN_MEGA_BYTE });
         });
     });
 
@@ -153,7 +169,7 @@ describe('LocalInstaller install', () => {
         });
     });
 
-    const tmp = (file: string) => `"${resolve(tmpDir, file)}"`;
+    const tmp = (file: string) => resolve(tmpDir, file);
 
     const stubPackageJson = (recipe: { [directory: string]: string }) => {
         Object.keys(recipe).forEach((directory, i) => {

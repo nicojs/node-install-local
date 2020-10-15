@@ -1,24 +1,24 @@
-import * as _ from 'lodash';
 import { readPackageJson } from './helpers';
-import { LocalInstaller, PackageJson, progress, saveIfNeeded } from './index';
+import { LocalInstaller, progress, saveIfNeeded } from './index';
 import { Options } from './Options';
 
-export function currentDirectoryInstall(options: Options) {
-    return readLocalDependencies(options.dependencies)
-        .then(localDependencies => {
-            const installer = new LocalInstaller({ '.': localDependencies });
-            progress(installer);
-            return installer.install()
-                .then(saveIfNeeded(options));
-        });
+export async function currentDirectoryInstall(options: Options): Promise<void> {
+    const localDependencies = await readLocalDependencies(options.dependencies);
+    const installer = new LocalInstaller({ '.': localDependencies });
+    progress(installer);
+    await installer.install()
+    await saveIfNeeded(options);
 }
 
-function readLocalDependencies(dependenciesFromArguments: string[]): Promise<string[]> {
+async function readLocalDependencies(dependenciesFromArguments: string[]): Promise<string[]> {
     if (dependenciesFromArguments.length) {
-        return Promise.resolve(dependenciesFromArguments);
+        return dependenciesFromArguments;
     } else {
-        return readPackageJson('.').then((pkg: PackageJson) => {
-            return _.values(pkg.localDependencies);
-        });
+        const pkg = await readPackageJson('.');
+        if (pkg.localDependencies) {
+            return Object.values(pkg.localDependencies);
+        } else {
+            return [];
+        }
     }
 }
