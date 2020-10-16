@@ -39,7 +39,7 @@
     "url": "https://github.com/nicojs/node-install-local/issues"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "homepage": "https://github.com/nicojs/node-install-local#readme",
   "devDependencies": {
