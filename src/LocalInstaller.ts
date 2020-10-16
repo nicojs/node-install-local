@@ -97,7 +97,7 @@ export class LocalInstaller extends EventEmitter {
     };
     const { stdout, stderr } = await exec(
       'npm',
-      ['i', '--no-save', ...toInstall],
+      ['i', '--no-save', '--no-package-lock', ...toInstall],
       options,
     );
     this.emit(

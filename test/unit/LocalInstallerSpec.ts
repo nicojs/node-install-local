@@ -83,12 +83,18 @@ describe('LocalInstaller install', () => {
       await sut.install();
       expect(helper.execStub).calledWith(
         'npm',
-        ['i', '--no-save', tmp('b-0.0.1.tgz'), tmp('c-0.0.2.tgz')],
+        [
+          'i',
+          '--no-save',
+          '--no-package-lock',
+          tmp('b-0.0.1.tgz'),
+          tmp('c-0.0.2.tgz'),
+        ],
         { cwd: resolve('/a'), env: undefined, maxBuffer: TEN_MEGA_BYTE },
       );
       expect(helper.execStub).calledWith(
         'npm',
-        ['i', '--no-save', tmp('e-0.0.4.tgz')],
+        ['i', '--no-save', '--no-package-lock', tmp('e-0.0.4.tgz')],
         { cwd: resolve('d'), env: undefined, maxBuffer: TEN_MEGA_BYTE },
       );
     });
@@ -140,6 +146,7 @@ describe('LocalInstaller install', () => {
       expect(helper.execStub).calledWith('npm', [
         'i',
         '--no-save',
+        '--no-package-lock',
         tmp('s-b-0.0.1.tgz'),
       ]);
     });
@@ -160,7 +167,7 @@ describe('LocalInstaller install', () => {
       await sut.install();
       expect(helper.execStub).calledWith(
         'npm',
-        ['i', '--no-save', tmp('b-0.0.1.tgz')],
+        ['i', '--no-save', '--no-package-lock', tmp('b-0.0.1.tgz')],
         { env: npmEnv, cwd: resolve('/a'), maxBuffer: TEN_MEGA_BYTE },
       );
     });
