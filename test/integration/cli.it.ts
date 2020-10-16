@@ -35,7 +35,7 @@ describe('install-local cli given 3 packages', () => {
     ]);
   });
 
-  it.only('should install 2 packages without changing the package.json', async () => {
+  it('should install 2 packages without changing the package.json', async () => {
     const cmd = `node ${installLocal} ${packages.two.directory} ${packages.three.directory}`;
     await execa.command(cmd, { cwd: packages.one.directory });
     const installed = await packages.one.readdir('node_modules');
