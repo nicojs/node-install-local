@@ -26,5 +26,13 @@ jobs:
         run: npm ci
       - name: Build & lint & test
         run: npm run all
+
+  mutation_test:
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install dependencies
+        run: npm ci
+      - name: test-mutation
+        run: npm run test:mutation
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

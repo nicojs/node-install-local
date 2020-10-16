@@ -4,7 +4,7 @@
   "description": "A small module for installing local packages. Works for both npm >= 5 and older versions.",
   "main": "dist/src/index.js",
   "scripts": {
-    "all": "npm run clean && npm run build && npm run lint && npm run test && npm run test:mutation",
+    "all": "npm run clean && npm run build && npm run lint && npm run test",
     "clean": "rimraf dist reports .stryker-tmp",
     "build": "tsc -b",
     "lint": "eslint --ignore-path .gitignore --ext .ts . && prettier --check .github/**/*.yml",
