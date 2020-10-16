@@ -6,8 +6,8 @@ export async function currentDirectoryInstall(options: Options): Promise<void> {
   const localDependencies = await readLocalDependencies(options.dependencies);
   const installer = new LocalInstaller({ '.': localDependencies });
   progress(installer);
-  await installer.install();
-  await saveIfNeeded(options);
+  const targets = await installer.install();
+  await saveIfNeeded(targets, options);
 }
 
 async function readLocalDependencies(

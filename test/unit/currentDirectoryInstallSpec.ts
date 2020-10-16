@@ -16,8 +16,8 @@ describe('currentDirectoryInstall', () => {
     void
   >;
   let saveIfNeededStub: sinon.SinonStub<
-    [Options],
-    (targets: InstallTarget[]) => Promise<void>
+    [InstallTarget[], Options],
+    Promise<void>
   >;
   let readPackageJsonStub: sinon.SinonStub<[string], Promise<PackageJson>>;
 
@@ -32,11 +32,14 @@ describe('currentDirectoryInstall', () => {
   });
 
   it('should install the local dependencies if none were provided', async () => {
-    localInstallerStub.install.resolves();
     readPackageJsonStub.resolves(
       packageJson({ localDependencies: { a: '../a', b: '../b' } }),
     );
     const expectedOptions = options({ dependencies: [] });
+    const expectedTargets: InstallTarget[] = [
+      { directory: '../a', packageJson: packageJson(), sources: [] },
+    ];
+    localInstallerStub.install.resolves(expectedTargets);
     await currentDirectoryInstall(expectedOptions);
     expect(localInstallerModule.LocalInstaller).calledWith({
       '.': ['../a', '../b'],
@@ -45,7 +48,10 @@ describe('currentDirectoryInstall', () => {
     expect(localInstallerStub.install).called;
     expect(progressStub).to.have.been.calledWith(localInstallerStub);
     expect(readPackageJsonStub).to.have.been.calledWith('.');
-    expect(saveIfNeededStub).to.have.been.calledWith(expectedOptions);
+    expect(saveIfNeededStub).to.have.been.calledWith(
+      expectedTargets,
+      expectedOptions,
+    );
   });
 
   it('should install given dependencies', async () => {
@@ -63,7 +69,7 @@ describe('currentDirectoryInstall', () => {
   });
 
   it('should not install anything when no arguments nor local dependencies are provided', async () => {
-    localInstallerStub.install.resolves();
+    localInstallerStub.install.resolves([]);
     readPackageJsonStub.resolves(packageJson({}));
     const expectedOptions = options({ dependencies: [] });
     await currentDirectoryInstall(expectedOptions);
@@ -72,6 +78,6 @@ describe('currentDirectoryInstall', () => {
     expect(localInstallerStub.install).called;
     expect(progressStub).to.have.been.calledWith(localInstallerStub);
     expect(readPackageJsonStub).to.have.been.calledWith('.');
-    expect(saveIfNeededStub).to.have.been.calledWith(expectedOptions);
+    expect(saveIfNeededStub).to.have.been.calledWith([], expectedOptions);
   });
 });

@@ -2,20 +2,16 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { Dependencies, InstallTarget, Options, Package } from './index';
 
-export function saveIfNeeded(
+export async function saveIfNeeded(
+  targets: InstallTarget[],
   options: Options,
-): (targets: InstallTarget[]) => Promise<void> {
-  return async (targets) => {
-    if (options.save) {
-      await Promise.all(targets.map(save));
-      return undefined;
-    } else {
-      return Promise.resolve();
-    }
-  };
+): Promise<void> {
+  if (options.save) {
+    await Promise.all(targets.map(save));
+  }
 }
 
-function save(target: InstallTarget) {
+async function save(target: InstallTarget) {
   const dependencies =
     target.packageJson.localDependencies ||
     (target.packageJson.localDependencies = {});
@@ -28,15 +24,13 @@ function save(target: InstallTarget) {
           .relative(target.directory, source.directory)
           .replace(/\\/g, '/')),
     );
-  if (equals(dependencies, dependenciesBefore)) {
-    return Promise.resolve();
-  } else {
-    return savePackageJson(target);
+  if (!equals(dependencies, dependenciesBefore)) {
+    await savePackageJson(target);
   }
 }
 
-function savePackageJson(target: Package) {
-  return fs.writeFile(
+async function savePackageJson(target: Package) {
+  await fs.writeFile(
     path.resolve(target.directory, 'package.json'),
     JSON.stringify(target.packageJson, undefined, 2),
     { encoding: 'utf8' },

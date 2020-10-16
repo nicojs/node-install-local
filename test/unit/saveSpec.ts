@@ -6,8 +6,9 @@ import { saveIfNeeded } from '../../src/save';
 import { InstallTarget } from './../../src/index';
 import { Options } from './../../src/Options';
 
+const sut = saveIfNeeded;
+
 describe('saveIfNeeded', () => {
-  let sut: (targets: InstallTarget[]) => Promise<void>;
   let writeFileStub: sinon.SinonStub;
   let input: InstallTarget[];
 
@@ -33,29 +34,19 @@ describe('saveIfNeeded', () => {
     writeFileStub = sinon.stub(fs, 'writeFile');
   });
 
-  describe('when no option to save', () => {
-    beforeEach(() => {
-      sut = saveIfNeeded(new Options([]));
-    });
-
-    it('should not do anything', async () => {
-      await sut(input);
-      expect(writeFileStub).to.not.have.been.called;
-    });
+  it('should not do anything when no option to save', async () => {
+    await sut(input, new Options([]));
+    expect(writeFileStub).to.not.have.been.called;
   });
 
   describe('when --save is in the options', () => {
-    beforeEach(() => {
-      sut = saveIfNeeded(new Options(['node', 'install-local', '--save']));
-    });
-
     it('should write "localDependencies" to package.json', async () => {
       const expectedContent = JSON.stringify(
         { name: 't', version: '0.0.2', localDependencies: { a: '../a' } },
         null,
         2,
       );
-      await sut(input);
+      await sut(input, new Options(['node', 'install-local', '--save']));
       expect(writeFileStub).to.have.been.calledWith(
         path.resolve(input[0].directory, 'package.json'),
         expectedContent,
@@ -75,7 +66,7 @@ describe('saveIfNeeded', () => {
         2,
       );
       input[0].packageJson.localDependencies = { a: '', b: 'b' };
-      await sut(input);
+      await sut(input, new Options(['node', 'install-local', '--save']));
       expect(writeFileStub).to.have.been.calledWith(
         path.resolve(input[0].directory, 'package.json'),
         expectedContent,
@@ -86,7 +77,7 @@ describe('saveIfNeeded', () => {
 
     it('should not write anything if the desired state is already in "localDependencies"', async () => {
       input[0].packageJson.localDependencies = { a: '../a' };
-      await sut(input);
+      await sut(input, new Options(['node', 'install-local', '--save']));
       expect(writeFileStub).to.not.have.been.called;
     });
   });

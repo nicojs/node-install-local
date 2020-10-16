@@ -25,7 +25,6 @@ describe('install-local cli given 3 packages', () => {
       two: new PackageHelper('two'),
       three: new PackageHelper('three'),
     };
-    console.log(tmpDir);
     await rm(tmpDir);
     await fs.mkdir(tmpDir);
     await Promise.all([
