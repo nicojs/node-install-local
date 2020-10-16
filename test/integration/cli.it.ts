@@ -93,6 +93,53 @@ describe('install-local cli given 3 packages', () => {
       cwd: packages.one.directory,
     });
   });
+
+  it('should not install additional (dev) dependencies (https://github.com/nicojs/node-install-local/issues/23)', async () => {
+    // Arrange
+    packages.one.packageJson.localDependencies = {
+      two: '../two',
+    };
+    packages.one.packageJson.devDependencies = {
+      typescript: '4.0.3',
+    };
+    packages.one.packageJson.dependencies = {
+      'typed-inject': '3.0.0',
+    };
+    packages.one.packageLock = {
+      name: 'one',
+      version: '0.0.0',
+      lockfileVersion: 1,
+      requires: true,
+      dependencies: {
+        'typed-inject': {
+          version: '3.0.0',
+          resolved:
+            'https://registry.npmjs.org/typed-inject/-/typed-inject-3.0.0.tgz',
+          integrity:
+            'sha512-LDuyPsk6mO1R0qpe/rm/4u/6pPgT2Fob5T+u2D/wDlORxqlwtG9oWxruTaFZ6L61kzwWGzSp80soc3UUScHmaQ==',
+        },
+        typescript: {
+          version: '4.0.3',
+          resolved:
+            'https://registry.npmjs.org/typescript/-/typescript-4.0.3.tgz',
+          integrity:
+            'sha512-tEu6DGxGgRJPb/mVPIZ48e69xCn2yRmCgYmDugAVwmJ6o+0u1RI18eO7E7WBTLYLaEVVOhwQmcdhQHweux/WPg==',
+          dev: true,
+        },
+      },
+    };
+    await packages.one.writePackage();
+
+    // Act
+    await execa.command(`node ${installLocal}`, {
+      cwd: packages.one.directory,
+    });
+
+    // Assert
+    const installed = await packages.one.readdir('node_modules');
+    expect(installed).not.include('typescript');
+    expect(installed).not.include('typed-inject');
+  });
 });
 
 const rm = (directory: string) =>
@@ -109,6 +156,7 @@ const rm = (directory: string) =>
 class PackageHelper implements Package {
   public directory: string;
   public packageJson: PackageJson;
+  public packageLock: Record<string, unknown> | undefined;
   constructor(private name: string) {
     this.directory = tmpFolder(name);
     this.packageJson = {
@@ -135,6 +183,13 @@ class PackageHelper implements Package {
         'utf8',
       ),
       fs.writeFile(path.resolve(this.directory, this.name), '', 'utf8'),
+      this.packageLock
+        ? fs.writeFile(
+            path.resolve(this.directory, 'package-lock.json'),
+            JSON.stringify(this.packageLock, null, 2),
+            'utf-8',
+          )
+        : Promise.resolve(),
     ]);
   }
 }

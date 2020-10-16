@@ -1,6 +1,6 @@
 import { execute, Options } from './index';
 
-export function cli(argv: string[]): Promise<void> {
+export async function cli(argv: string[]): Promise<void> {
   const l = console.log;
   const options = new Options(argv);
   if (options.help) {
@@ -44,8 +44,8 @@ export function cli(argv: string[]): Promise<void> {
     l(
       '   install the packages of 2 sibling directories into the current directory and save them to "localDependencies" in your package.json file.',
     );
-    return Promise.resolve();
   } else {
-    return options.validate().then(() => execute(options));
+    await options.validate();
+    await execute(options);
   }
 }
