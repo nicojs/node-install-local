@@ -1,3 +1,12 @@
+## [3.0.1](https://github.com/nicojs/node-install-local/compare/v3.0.0...v3.0.1) (2020-10-16)
+
+
+### Bug Fixes
+
+* **lodash:** remove missing dependency lodash ([b960029](https://github.com/nicojs/node-install-local/commit/b9600290c8b396d48b66a1feb5bc6ea397fffbbb))
+
+
+
 # [3.0.0](https://github.com/nicojs/node-install-local/compare/v1.0.0...v3.0.0) (2020-10-16)
 
 
