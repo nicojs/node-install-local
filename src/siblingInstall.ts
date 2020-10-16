@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { readPackageJson } from './helpers';
@@ -28,7 +27,7 @@ function readSiblingTargets() {
 
 function siblingTargetsCurrent(siblingPackage: Package): boolean {
   const currentDirectory = path.resolve('.');
-  return _.values(siblingPackage.packageJson.localDependencies).some(
+  return Object.values(siblingPackage.packageJson.localDependencies ?? {}).some(
     (localDependencyPath) =>
       path.resolve(localDependencyPath) === currentDirectory,
   );
