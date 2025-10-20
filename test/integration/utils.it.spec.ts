@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
-import * as utils from '../../src/utils';
+import { utils } from '../../src/utils.ts';
 
 describe('utils integration', () => {
   it('should be able to delete directories', async () => {

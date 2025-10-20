@@ -1,28 +1,28 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { readPackageJson } from './helpers';
-import { ListByPackage, LocalInstaller, Package, progress } from './index';
+import { helpers } from './helpers.ts';
+import { type ListByPackage, type Package, LocalInstaller } from './index.ts';
+import { progressReporter } from './progress.ts';
 
 function filterTruthy(values: Array<Package | null>): Package[] {
   return values.filter((v) => v) as Package[];
 }
 
-function readSiblingTargets() {
+async function readSiblingTargets() {
   const currentDirectoryName = path.basename(process.cwd());
-  return fs
-    .readdir('..')
-    .then((dirs) => dirs.filter((dir) => dir !== currentDirectoryName))
-    .then((dirs) => dirs.map((dir) => path.resolve('..', dir)))
-    .then((dirs) =>
-      Promise.all(
-        dirs.map((directory) =>
-          readPackageJson(directory)
-            .then((packageJson) => ({ directory, packageJson }))
-            .catch(() => null),
-        ),
-      ),
-    )
-    .then(filterTruthy);
+  const dirs = await fs.readdir('..');
+  const siblings = dirs
+    .filter((dir) => dir !== currentDirectoryName)
+    .map((dir) => path.resolve('..', dir));
+  const values = await Promise.all(
+    siblings.map((directory) =>
+      helpers
+        .readPackageJson(directory)
+        .then((packageJson) => ({ directory, packageJson }))
+        .catch(() => null),
+    ),
+  );
+  return filterTruthy(values);
 }
 
 function siblingTargetsCurrent(siblingPackage: Package): boolean {
@@ -33,15 +33,14 @@ function siblingTargetsCurrent(siblingPackage: Package): boolean {
   );
 }
 
-export function siblingInstall(): Promise<void> {
-  return readSiblingTargets()
-    .then((siblings) => siblings.filter(siblingTargetsCurrent))
-    .then((targets) => {
-      const sourceByTarget: ListByPackage = {};
-      targets.forEach((target) => (sourceByTarget[target.directory] = ['.']));
-      const installer = new LocalInstaller(sourceByTarget);
-      progress(installer);
-      return installer.install();
-    })
-    .then(() => void 0);
-}
+export const siblingInstaller = {
+  async install(): Promise<void> {
+    const siblings = await readSiblingTargets();
+    const targets = siblings.filter(siblingTargetsCurrent);
+    const sourceByTarget: ListByPackage = {};
+    targets.forEach((target) => (sourceByTarget[target.directory] = ['.']));
+    const installer = new LocalInstaller(sourceByTarget);
+    progressReporter.report(installer);
+    await installer.install();
+  },
+};

@@ -1,19 +1,11 @@
 {
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
   "testRunner": "mocha",
-  "reporters": [
-    "html",
-    "progress",
-    "dashboard"
-  ],
-  "checkers": [
-    "typescript"
-  ],
+  "reporters": ["html", "progress", "dashboard"],
+  "checkers": ["typescript"],
   "buildCommand": "npm run build",
   "mochaOptions": {
-    "spec": [
-      "dist/test/unit/**/*.js"
-    ]
+    "spec": ["dist/test/unit/**/*.js"]
   },
   "coverageAnalysis": "perTest",
   "thresholds": {

@@ -1,8 +1,15 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { Dependencies, InstallTarget, Options, Package } from './index';
+import {
+  type Dependencies,
+  type InstallTarget,
+  Options,
+  type Package,
+} from './index.ts';
 
-export async function saveIfNeeded(
+export const storage = { saveIfNeeded };
+
+async function saveIfNeeded(
   targets: InstallTarget[],
   options: Options,
 ): Promise<void> {
@@ -16,12 +23,23 @@ async function save(target: InstallTarget) {
     target.packageJson.localDependencies ||
     (target.packageJson.localDependencies = {});
   const dependenciesBefore = Object.assign({}, dependencies);
-  target.sources
+
+  const from = await fs.realpath(target.directory);
+  const sources = await Promise.all(
+    target.sources.map(async (source) => {
+      return {
+        ...source,
+        directory: await fs.realpath(source.directory),
+      };
+    }),
+  );
+
+  sources
     .sort((a, b) => a.directory.localeCompare(b.directory))
     .forEach(
       (source) =>
         (dependencies[source.packageJson.name] = path
-          .relative(target.directory, source.directory)
+          .relative(from, source.directory)
           .replace(/\\/g, '/')),
     );
   if (!equals(dependencies, dependenciesBefore)) {

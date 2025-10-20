@@ -1,14 +1,20 @@
-import { readPackageJson } from './helpers';
-import { LocalInstaller, progress, saveIfNeeded } from './index';
-import { Options } from './Options';
+import { helpers } from './helpers.ts';
+import { LocalInstaller } from './LocalInstaller.ts';
+import { Options } from './Options.ts';
+import { progressReporter } from './progress.ts';
+import { storage } from './save.ts';
 
-export async function currentDirectoryInstall(options: Options): Promise<void> {
-  const localDependencies = await readLocalDependencies(options.dependencies);
-  const installer = new LocalInstaller({ '.': localDependencies });
-  progress(installer);
-  const targets = await installer.install();
-  await saveIfNeeded(targets, options);
-}
+export const currentDirectoryInstaller = {
+  install: async (options: Options): Promise<void> => {
+    const localDependencies = await readLocalDependencies(options.dependencies);
+    const installer = new LocalInstaller({
+      [process.cwd()]: localDependencies,
+    });
+    progressReporter.report(installer);
+    const targets = await installer.install();
+    await storage.saveIfNeeded(targets, options);
+  },
+};
 
 async function readLocalDependencies(
   dependenciesFromArguments: string[],
@@ -16,7 +22,7 @@ async function readLocalDependencies(
   if (dependenciesFromArguments.length) {
     return dependenciesFromArguments;
   } else {
-    const pkg = await readPackageJson('.');
+    const pkg = await helpers.readPackageJson('.');
     if (pkg.localDependencies) {
       return Object.values(pkg.localDependencies);
     } else {

@@ -1,4 +1,4 @@
-import { execute, Options } from './index';
+import { execute, Options } from './index.ts';
 
 export async function cli(argv: string[]): Promise<void> {
   const l = console.log;

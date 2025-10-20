@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import type { ExecaReturnValue } from 'execa';
+import type { ResultPromise } from 'execa';
 import { promises as fs } from 'fs';
 import os from 'os';
 import { resolve } from 'path';
 import sinon from 'sinon';
-import * as utils from '../../src/utils';
-import { LocalInstaller } from './../../src/LocalInstaller';
+import { utils } from '../../src/utils.ts';
+import { LocalInstaller } from './../../src/LocalInstaller.ts';
 const TEN_MEGA_BYTE = 1024 * 1024 * 10;
 
 describe('LocalInstaller install', () => {
@@ -24,19 +24,19 @@ describe('LocalInstaller install', () => {
   const tmpDir = resolve(os.tmpdir(), 'node-local-install-5a6s4df65asdas');
 
   function createExecaResult(
-    overrides?: Partial<ExecaReturnValue<string>>,
-  ): ExecaReturnValue<string> {
+    overrides?: Partial<Awaited<ResultPromise>>,
+  ): Awaited<ResultPromise> {
     return {
       command: '',
       exitCode: 0,
       isCanceled: false,
       failed: false,
-      killed: false,
       stderr: '',
       stdout: '',
       timedOut: false,
+      all: '',
       ...overrides,
-    };
+    } as Awaited<ResultPromise>;
   }
 
   beforeEach(() => {
