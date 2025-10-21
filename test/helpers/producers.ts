@@ -1,4 +1,4 @@
-import { Options, PackageJson } from './../../src/index';
+import { Options, type PackageJson } from './../../src/index.ts';
 
 export function options(overrides?: Partial<Options>): Options {
   const defaults = new Options([]);

@@ -2,9 +2,9 @@ import flatMap from 'lodash.flatmap';
 import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { readPackageJson } from './helpers';
-import { InstallTarget, PackageJson } from './index';
-import { exec, del, getRandomTmpDir } from './utils';
+import { helpers } from './helpers.ts';
+import type { InstallTarget, PackageJson } from './index.ts';
+import { utils } from './utils.ts';
 import type { Options as ExecaOptions } from 'execa';
 
 interface PackageByDirectory {
@@ -45,14 +45,13 @@ export class LocalInstaller extends EventEmitter {
 
     this.sourcesByTarget = resolve(sourcesByTarget);
     this.options = Object.assign({}, options);
-    this.uniqueDir = getRandomTmpDir('node-local-install-');
+    this.uniqueDir = utils.getRandomTmpDir('node-local-install-');
   }
 
   public on<TEventName extends keyof EventMap>(
     event: TEventName,
     listener: (...args: EventMap[TEventName]) => void,
   ): this {
-    // @ts-expect-error the 'listener' here is reduced to `never`
     return super.on(event, listener);
   }
 
@@ -90,12 +89,12 @@ export class LocalInstaller extends EventEmitter {
     const toInstall = target.sources.map((source) =>
       resolvePackFile(this.uniqueDir, source.packageJson),
     );
-    const options: ExecaOptions<string> = {
+    const options: ExecaOptions = {
       cwd: target.directory,
       maxBuffer: TEN_MEGA_BYTE,
       env: this.options.npmEnv,
     };
-    const { stdout, stderr } = await exec(
+    const { stdout, stderr } = await utils.exec(
       'npm',
       ['i', '--no-save', '--no-package-lock', ...toInstall],
       options,
@@ -103,8 +102,8 @@ export class LocalInstaller extends EventEmitter {
     this.emit(
       'installed',
       target.packageJson.name,
-      stdout.toString(),
-      stderr.toString(),
+      stdout!.toString(),
+      stderr!.toString(),
     );
   }
 
@@ -119,7 +118,7 @@ export class LocalInstaller extends EventEmitter {
     );
     const allPackages = Promise.all(
       Array.from(uniqueDirectories).map((directory) =>
-        readPackageJson(directory).then((packageJson) => ({
+        helpers.readPackageJson(directory).then((packageJson) => ({
           directory,
           packageJson,
         })),
@@ -163,7 +162,7 @@ export class LocalInstaller extends EventEmitter {
   }
 
   private async packOne(directory: string): Promise<void> {
-    await exec('npm', ['pack', directory], {
+    await utils.exec('npm', ['pack', directory], {
       cwd: this.uniqueDir,
       maxBuffer: TEN_MEGA_BYTE,
     });
@@ -171,7 +170,7 @@ export class LocalInstaller extends EventEmitter {
   }
 
   private removeTmpDirectory(): Promise<void> {
-    return del(this.uniqueDir);
+    return utils.del(this.uniqueDir);
   }
 }
 

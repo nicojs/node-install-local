@@ -24,7 +24,7 @@ You can use install-local from command line or programmatically.
 ## Command line:
 
 ```bash
-Usage: 
+Usage:
 $ install-local                                       # 1
 $ install-local [options] <directory>[ <directory>]   # 2
 $ install-local --target-siblings                     # 3
@@ -34,22 +34,22 @@ Installs a package from the filesystem into the current directory.
 
 Options:
 
-
-* `-h, --help`: Output this help
-* `-S, --save`: Saved packages will appear in your package.json under "localDependencies"
-* `-T, --target-siblings`: Instead of installing into this package, this package gets installed into sibling packages
-which depend on this package by putting it in the "localDependencies".
-Useful in a [lerna](https://github.com/lerna/lerna) style monorepo.
+- `-h, --help`: Output this help
+- `-S, --save`: Saved packages will appear in your package.json under "localDependencies"
+- `-T, --target-siblings`: Instead of installing into this package, this package gets installed into sibling packages
+  which depend on this package by putting it in the "localDependencies".
+  Useful in a [lerna](https://github.com/lerna/lerna) style monorepo.
 
 Examples:
-* `install-local`
-Install the "localDependencies" of your current package
-* `install-local ..`
-Install the package located in the parent folder into the current directory.
-* `install-local --save ../sibling ../sibling2`
-Install the packages in 2 sibling directories into the current directory.
-* `install-local --help`
-Print this help
+
+- `install-local`
+  Install the "localDependencies" of your current package
+- `install-local ..`
+  Install the package located in the parent folder into the current directory.
+- `install-local --save ../sibling ../sibling2`
+  Install the packages in 2 sibling directories into the current directory.
+- `install-local --help`
+  Print this help
 
 See [Programmatically](#programmatically) to see how use `install-local` from node.
 
@@ -63,7 +63,7 @@ Why installing packages locally? There are a number of use cases.
 
 ## What's wrong with [npm-link](https://docs.npmjs.com/cli/link)?
 
-Well... nothing is _wrong_ with npm link. It's just not covering all use cases. 
+Well... nothing is _wrong_ with npm link. It's just not covering all use cases.
 
 For example, if your using typescript and you `npm link` a dependency from a _parent_ directory, you might end up with infinite ts source files, resulting in an out-of-memory error:
 
@@ -86,7 +86,13 @@ To guarantee the production-like installation of your dependency, `install-local
 _Typings are included for all your TypeScript programmers out there_
 
 ```javascript
-const { cli, execute, Options, progress, LocalInstaller} = require('install-local');
+const {
+  cli,
+  execute,
+  Options,
+  progress,
+  LocalInstaller,
+} = require('install-local');
 ```
 
 ### Use the CLI programmatically
@@ -94,20 +100,26 @@ const { cli, execute, Options, progress, LocalInstaller} = require('install-loca
 Execute the cli functions with the `cli` function. It returns a promise:
 
 ```javascript
-cli(['node', 'install-local', '--save', '../sibling-dependency', '../sibling-dependency2'])
-    .then(() => console.log('done'))
-    .catch(err => console.error('err'));
+cli([
+  'node',
+  'install-local',
+  '--save',
+  '../sibling-dependency',
+  '../sibling-dependency2',
+])
+  .then(() => console.log('done'))
+  .catch((err) => console.error('err'));
 ```
 
 Or a slightly cleaner api:
 
 ```javascript
-execute({ 
-    validate: () => true, 
-    dependencies: ['../sibling-dependency', '../sibling-dependency2'], 
-    save: true, 
-    targetSiblings: false 
-})
+execute({
+  validate: () => true,
+  dependencies: ['../sibling-dependency', '../sibling-dependency2'],
+  save: true,
+  targetSiblings: false,
+});
 ```
 
 ### Install dependencies locally
@@ -118,22 +130,23 @@ For example:
 
 ```javascript
 const localInstaller = new LocalInstaller({
-   /*1*/ '.': ['../sibling1', '../sibling2'],
-   /*2*/ '../dependant': ['.']
+  /*1*/ '.': ['../sibling1', '../sibling2'],
+  /*2*/ '../dependant': ['.'],
 });
 progress(localInstaller);
-localInstaller.install()
-    .then(() => console.log('done'))
-    .catch(err => console.error(err));
+localInstaller
+  .install()
+  .then(() => console.log('done'))
+  .catch((err) => console.error(err));
 ```
 
-1. This will install packages located in the directories "sibling1" and "sibling2" next to the current working directory into the package located in the current working directory (`'.'`) 
-2. This will install the package located in the current working directory (`'.'`) into the package located in 
-the "dependant" directory located next to the current working directory.
+1. This will install packages located in the directories "sibling1" and "sibling2" next to the current working directory into the package located in the current working directory (`'.'`)
+2. This will install the package located in the current working directory (`'.'`) into the package located in
+   the "dependant" directory located next to the current working directory.
 
 Construct the `LocalInstall` by using an object. The properties of this object are the relative package locations to install into. The array values are the packages to be installed. Use the `install()` method to install, returns a promise.
 
-If you want the progress reporting like the CLI has: use `progress(localInstaller)`; 
+If you want the progress reporting like the CLI has: use `progress(localInstaller)`;
 
 ##### Passing npm env variables
 
@@ -141,8 +154,8 @@ In some cases it might be useful to control the env variables for npm. For examp
 
 ```javascript
 const localInstaller = new LocalInstaller(
-   { '.': ['../sibling'] },
-   { npmEnv: { envVar: 'envValue' } }
+  { '.': ['../sibling'] },
+  { npmEnv: { envVar: 'envValue' } },
 );
 ```
 
@@ -150,7 +163,7 @@ Because the value provided for `npmEnv` will override the environment of the npm
 
 ```javascript
 const localInstaller = new LocalInstaller(
-   { '.': ['../sibling'] },
-   { npmEnv: Object.assign({}, process.env, { envVar: 'envValue' }) }
+  { '.': ['../sibling'] },
+  { npmEnv: Object.assign({}, process.env, { envVar: 'envValue' }) },
 );
 ```

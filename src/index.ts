@@ -1,11 +1,16 @@
-export { ListByPackage, LocalInstaller } from './LocalInstaller';
-export { progress } from './progress';
-export { saveIfNeeded } from './save';
-export { currentDirectoryInstall } from './currentDirectoryInstall';
-export { siblingInstall } from './siblingInstall';
-export { execute } from './executor';
-export { cli } from './cli';
-export { Options } from './Options';
+import { siblingInstaller } from './siblingInstall.ts';
+import { currentDirectoryInstaller } from './currentDirectoryInstall.ts';
+import { progressReporter } from './progress.ts';
+import { storage } from './save.ts';
+
+export { type ListByPackage, LocalInstaller } from './LocalInstaller.ts';
+export { execute } from './executor.ts';
+export { cli } from './cli.ts';
+export { Options } from './Options.ts';
+export const saveIfNeeded = storage.saveIfNeeded;
+export const siblingInstall = siblingInstaller.install;
+export const progress = progressReporter.report;
+export const currentDirectoryInstall = currentDirectoryInstaller.install;
 
 export interface Package {
   directory: string;

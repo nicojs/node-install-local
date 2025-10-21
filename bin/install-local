@@ -1,6 +1,8 @@
 #!/usr/bin/env node
+import { cli } from '../dist/src/index.js';
 process.title = 'install-local';
-require('../dist/src/index').cli(process.argv).catch(err => {
-    console.error(err);
-    process.exit(1);
+
+cli(process.argv).catch((err) => {
+  console.error(err);
+  process.exit(1);
 });

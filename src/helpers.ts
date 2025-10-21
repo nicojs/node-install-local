@@ -1,8 +1,10 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { PackageJson } from './index';
+import type { PackageJson } from './index.ts';
 
-export async function readPackageJson(from: string): Promise<PackageJson> {
-  const content = await fs.readFile(path.join(from, 'package.json'), 'utf8');
-  return JSON.parse(content) as PackageJson;
-}
+export const helpers = {
+  readPackageJson: async (from: string): Promise<PackageJson> => {
+    const content = await fs.readFile(path.join(from, 'package.json'), 'utf8');
+    return JSON.parse(content) as PackageJson;
+  },
+};

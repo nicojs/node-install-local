@@ -1,10 +1,10 @@
-import chai from 'chai';
+import { use } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
-chai.use(chaiAsPromised);
-chai.use(sinonChai);
+use(chaiAsPromised);
+use(sinonChai);
 
 export const mochaHooks = {
   afterEach(): void {

@@ -2,14 +2,15 @@ import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
 import sinon from 'sinon';
-import { saveIfNeeded } from '../../src/save';
-import { InstallTarget } from './../../src/index';
-import { Options } from './../../src/Options';
+import { storage } from '../../src/save.ts';
+import type { InstallTarget } from './../../src/index.ts';
+import { Options } from './../../src/Options.ts';
 
-const sut = saveIfNeeded;
+const sut = storage.saveIfNeeded;
 
 describe('saveIfNeeded', () => {
   let writeFileStub: sinon.SinonStub;
+  let realpathStub: sinon.SinonStubbedMember<typeof fs.realpath>;
   let input: InstallTarget[];
 
   beforeEach(() => {
@@ -32,6 +33,9 @@ describe('saveIfNeeded', () => {
       },
     ];
     writeFileStub = sinon.stub(fs, 'writeFile');
+    realpathStub = sinon.stub(fs, 'realpath');
+    // @ts-expect-error wrong overload gets chosen
+    realpathStub.callsFake((p: string) => Promise.resolve(p));
   });
 
   it('should not do anything when no option to save', async () => {

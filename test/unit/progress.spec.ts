@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import os from 'os';
 import sinon from 'sinon';
 import { WriteStream } from 'tty';
-import { progress } from '../../src/progress';
-import { LocalInstaller } from './../../src/LocalInstaller';
+import { progressReporter } from '../../src/progress.ts';
+import { LocalInstaller } from './../../src/LocalInstaller.ts';
 
 describe('progress', () => {
   let eventEmitter: LocalInstaller;
@@ -12,7 +12,7 @@ describe('progress', () => {
   beforeEach(() => {
     streamStub = stubStdOut();
     eventEmitter = new LocalInstaller({});
-    progress(eventEmitter, streamStub);
+    progressReporter.report(eventEmitter, streamStub);
   });
 
   describe('on "install_targets_identified" with 2 install targets', () => {

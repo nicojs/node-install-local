@@ -1,9 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2022",
     "declaration": true,
-    "module": "commonjs",
+    "module": "nodenext",
     "outDir": "dist",
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "rewriteRelativeImportExtensions": true,
     "composite": true,
     "strict": true,
     "noUnusedLocals": true,

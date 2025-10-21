@@ -3,20 +3,23 @@ export class Options {
   public readonly options: string[];
 
   constructor(argv: string[]) {
-    const args = argv // strip the "node install-local" part.
-      .filter((_, i) => i > 1);
-    this.dependencies = args.filter((arg) => arg.substr(0, 1) !== '-');
-    this.options = args.filter((arg) => arg.substr(0, 1) === '-');
+    const [, , ...args] = argv;
+    this.dependencies = args.filter((arg) => arg.substring(0, 1) !== '-');
+    this.options = args.filter((arg) => arg.substring(0, 1) === '-');
   }
 
   public validate(): Promise<void> {
     if (this.dependencies.length > 0 && this.targetSiblings) {
       return Promise.reject(
-        `Invalid use of option --target-siblings. Cannot be used together with a dependency list`,
+        new Error(
+          `Invalid use of option --target-siblings. Cannot be used together with a dependency list`,
+        ),
       );
     } else if (this.targetSiblings && this.save) {
       return Promise.reject(
-        `Invalid use of option --target-siblings. Cannot be used together with --save`,
+        new Error(
+          `Invalid use of option --target-siblings. Cannot be used together with --save`,
+        ),
       );
     } else {
       return Promise.resolve();

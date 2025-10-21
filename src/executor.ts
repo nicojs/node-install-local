@@ -1,9 +1,11 @@
-import { currentDirectoryInstall, Options, siblingInstall } from './index';
+import { currentDirectoryInstaller } from './currentDirectoryInstall.ts';
+import { Options } from './index.ts';
+import { siblingInstaller } from './siblingInstall.ts';
 
 export function execute(options: Options): Promise<void> {
   if (options.targetSiblings) {
-    return siblingInstall();
+    return siblingInstaller.install();
   } else {
-    return currentDirectoryInstall(options);
+    return currentDirectoryInstaller.install(options);
   }
 }

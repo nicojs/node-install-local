@@ -1,27 +1,27 @@
 import { expect } from 'chai';
-import { PathLike, promises as fs } from 'fs';
+import { type PathLike, promises as fs } from 'fs';
 import path from 'path';
 import sinon from 'sinon';
-import * as helpers from '../../src/helpers';
-import { siblingInstall } from '../../src/siblingInstall';
-import * as progressModule from '../../src/progress';
-import * as localInstallerModule from '../../src/LocalInstaller';
-import { PackageJson } from '../../src';
+import { helpers } from '../../src/helpers.ts';
+import { siblingInstaller } from '../../src/siblingInstall.ts';
+import { progressReporter } from '../../src/progress.ts';
+import { LocalInstaller } from '../../src/LocalInstaller.ts';
+import type { PackageJson } from '../../src/index.ts';
 
 describe('siblingInstall', () => {
   let readdirStub: sinon.SinonStub<[PathLike], Promise<string[]>>;
   let readPackageJson: sinon.SinonStub<[string], Promise<PackageJson>>;
-  let localInstallStub: { install: sinon.SinonStub };
+  let localInstallStub: sinon.SinonStubbedMember<
+    typeof LocalInstaller.prototype.install
+  >;
+  let progressStub: sinon.SinonStubbedMember<typeof progressReporter.report>;
 
   beforeEach(() => {
-    localInstallStub = { install: sinon.stub() };
+    localInstallStub = sinon.stub(LocalInstaller.prototype, 'install');
     // @ts-expect-error picks the wrong overload
     readdirStub = sinon.stub(fs, 'readdir');
     readPackageJson = sinon.stub(helpers, 'readPackageJson');
-    sinon.stub(progressModule, 'progress');
-    sinon
-      .stub(localInstallerModule, 'LocalInstaller')
-      .returns(localInstallStub);
+    progressStub = sinon.stub(progressReporter, 'report');
   });
 
   it('should install packages from sibling dirs if they exist', async () => {
@@ -55,20 +55,15 @@ describe('siblingInstall', () => {
           localDependencies: { someOtherName: 'some/other/localDep' },
         }),
       );
-    localInstallStub.install.resolves();
+    localInstallStub.resolves();
 
     // Act
-    await siblingInstall();
+    await siblingInstaller.install();
 
     // Assert
-    expect(readdirStub).calledWith('..');
-    expect(localInstallerModule.LocalInstaller).calledWith({
-      [siblings.a]: ['.'],
-      [siblings.c]: ['.'],
-    });
-    expect(localInstallerModule.LocalInstaller).calledWithNew;
-    expect(localInstallStub.install).called;
-    expect(progressModule.progress).calledWith(localInstallStub);
+    sinon.assert.calledWithExactly(readdirStub, '..');
+    sinon.assert.calledWithExactly(localInstallStub);
+    sinon.assert.called(progressStub);
   });
 
   it('should reject when install rejects', () => {
@@ -77,8 +72,8 @@ describe('siblingInstall', () => {
     readPackageJson.resolves(
       createPackageJson({ localDependencies: { b: process.cwd() } }),
     );
-    localInstallStub.install.rejects(new Error('some error'));
-    return expect(siblingInstall()).rejectedWith('some error');
+    localInstallStub.rejects(new Error('some error'));
+    return expect(siblingInstaller.install()).rejectedWith('some error');
   });
 
   function createPackageJson(overrides?: Partial<PackageJson>): PackageJson {

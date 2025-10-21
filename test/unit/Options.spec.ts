@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Options } from '../../src/Options';
+import { Options } from '../../src/Options.ts';
 
 describe('Options', () => {
   it('should parse "node install-local --save --target-siblings some dependencies"', () => {
