@@ -16,6 +16,6 @@
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "esModuleInterop": true,
-    "declarationMap": true,
+    "declarationMap": true
   }
 }
