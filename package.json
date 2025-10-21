@@ -57,6 +57,7 @@
     "@types/uniqid": "^5.3.4",
     "chai": "^6.2.0",
     "chai-as-promised": "^8.0.2",
+    "commit-and-tag-version": "^12.6.0",
     "eslint": "^9.38.0",
     "eslint-plugin-chai-friendly": "^1.1.0",
     "mocha": "^11.7.4",
