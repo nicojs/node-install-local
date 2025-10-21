@@ -168,3 +168,19 @@ const localInstaller = new LocalInstaller(
   { npmEnv: Object.assign({}, process.env, { envVar: 'envValue' }) },
 );
 ```
+
+##### Max concurrent installs
+
+In some cases it might be useful to control the max concurrent installs. You can do it by passing `options` to `LocalInstaller`'s constructor.
+
+```javascript
+const localInstaller = new LocalInstaller(
+  {
+    /*1*/ '.': ['../sibling1', '../sibling2'],
+    /*2*/ '../dependant': ['.'],
+  },
+  { concurrent: 1 },
+);
+```
+
+The default concurrency is `os.cpus().length`.
