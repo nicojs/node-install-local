@@ -3,7 +3,6 @@ import { execaCommand } from 'execa';
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
-import { rimraf } from 'rimraf';
 import type { Package } from '../../src/index.ts';
 import type { PackageJson } from './../../src/index.ts';
 const installLocal = path.resolve('bin', 'install-local');
@@ -22,7 +21,7 @@ describe('install-local cli', () => {
       two: new PackageHelper('two'),
       three: new PackageHelper('three'),
     };
-    await rimraf(tmpDir);
+    await fs.rm(tmpDir, { recursive: true, force: true });
     await fs.mkdir(tmpDir);
     await Promise.all([
       packages.one.writePackage(),
@@ -157,7 +156,7 @@ class PackageHelper implements Package {
     return fs.readFile(path.resolve(this.directory, file), 'utf8');
   }
   public async writePackage() {
-    await rimraf(this.directory);
+    await fs.rm(this.directory, { recursive: true, force: true });
     await fs.mkdir(this.directory);
     return await Promise.all([
       fs.writeFile(
