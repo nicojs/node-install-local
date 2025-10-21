@@ -1,7 +1,12 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { helpers } from './helpers.ts';
-import { type ListByPackage, type Package, LocalInstaller, Options } from './index.ts';
+import {
+  type ListByPackage,
+  type Package,
+  LocalInstaller,
+  Options,
+} from './index.ts';
 import { progressReporter } from './progress.ts';
 
 function filterTruthy(values: Array<Package | null>): Package[] {

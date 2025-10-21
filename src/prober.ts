@@ -1,6 +1,5 @@
-
 export const validPackageManagers = ['npm', 'pnpm'] as const;
-export type PackageManager = typeof validPackageManagers[number];
+export type PackageManager = (typeof validPackageManagers)[number];
 import { promises as fs } from 'fs';
 
 export const prober = {
@@ -14,6 +13,5 @@ export const prober = {
     }
     // Default to npm if no lock file found
     return 'npm';
-
-  }
-}
+  },
+};

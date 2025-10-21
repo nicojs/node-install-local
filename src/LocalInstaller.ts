@@ -91,7 +91,8 @@ export class LocalInstaller extends EventEmitter {
     const toInstall = target.sources.map((source) =>
       resolvePackFile(this.uniqueDir, source.packageJson),
     );
-    const pkgManager = this.options.packageManager ?? (await prober.probePackageManager());
+    const pkgManager =
+      this.options.packageManager ?? (await prober.probePackageManager());
     const options: ExecaOptions = {
       cwd: target.directory,
       maxBuffer: TEN_MEGA_BYTE,

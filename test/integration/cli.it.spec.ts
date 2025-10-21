@@ -102,7 +102,9 @@ describe('install-local cli', () => {
     const expectedLink = await fs.readlink(
       path.resolve(packages.one.directory, 'node_modules', 'typed-inject'),
     );
-    expect(expectedLink).to.eq('.pnpm/typed-inject@5.0.0/node_modules/typed-inject'); // verify arrange
+    expect(expectedLink).to.eq(
+      '.pnpm/typed-inject@5.0.0/node_modules/typed-inject',
+    ); // verify arrange
     const expectedPnpmLock = await packages.one.readFile('pnpm-lock.yaml');
 
     // Act
