@@ -6,7 +6,7 @@ import { helpers } from '../../src/helpers.ts';
 import { siblingInstaller } from '../../src/siblingInstall.ts';
 import { progressReporter } from '../../src/progress.ts';
 import { LocalInstaller } from '../../src/LocalInstaller.ts';
-import type { PackageJson } from '../../src/index.ts';
+import { Options, type PackageJson } from '../../src/index.ts';
 
 describe('siblingInstall', () => {
   let readdirStub: sinon.SinonStub<[PathLike], Promise<string[]>>;
@@ -15,6 +15,7 @@ describe('siblingInstall', () => {
     typeof LocalInstaller.prototype.install
   >;
   let progressStub: sinon.SinonStubbedMember<typeof progressReporter.report>;
+  const npmOptions = new Options(['node', 'install-local', '--pkg=npm']);
 
   beforeEach(() => {
     localInstallStub = sinon.stub(LocalInstaller.prototype, 'install');
@@ -58,7 +59,7 @@ describe('siblingInstall', () => {
     localInstallStub.resolves();
 
     // Act
-    await siblingInstaller.install();
+    await siblingInstaller.install(npmOptions);
 
     // Assert
     sinon.assert.calledWithExactly(readdirStub, '..');
@@ -73,7 +74,9 @@ describe('siblingInstall', () => {
       createPackageJson({ localDependencies: { b: process.cwd() } }),
     );
     localInstallStub.rejects(new Error('some error'));
-    return expect(siblingInstaller.install()).rejectedWith('some error');
+    return expect(siblingInstaller.install(npmOptions)).rejectedWith(
+      'some error',
+    );
   });
 
   function createPackageJson(overrides?: Partial<PackageJson>): PackageJson {

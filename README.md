@@ -36,6 +36,7 @@ Options:
 
 - `-h, --help`: Output this help
 - `-S, --save`: Saved packages will appear in your package.json under "localDependencies"
+- `--pkg=<pnpm|npm>`: Specify which package manager to use. By default it will try to auto detect (see if `pnpm-lock.yaml` exists in the current directory).
 - `-T, --target-siblings`: Instead of installing into this package, this package gets installed into sibling packages
   which depend on this package by putting it in the "localDependencies".
   Useful in a [lerna](https://github.com/lerna/lerna) style monorepo.

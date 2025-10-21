@@ -24,6 +24,9 @@ export async function cli(argv: string[]): Promise<void> {
       ' -S, --save              Saved packages will appear in your package.json under "localDependencies"',
     );
     l(
+      '--pkg=<npm|pnpm>         Specify which package manager to use (default: auto-detect)',
+    );
+    l(
       ' -T, --target-siblings   Instead of installing into this package, this package gets installed into sibling packages',
     );
     l(

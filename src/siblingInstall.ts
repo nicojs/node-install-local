@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { helpers } from './helpers.ts';
-import { type ListByPackage, type Package, LocalInstaller } from './index.ts';
+import { type ListByPackage, type Package, LocalInstaller, Options } from './index.ts';
 import { progressReporter } from './progress.ts';
 
 function filterTruthy(values: Array<Package | null>): Package[] {
@@ -34,12 +34,14 @@ function siblingTargetsCurrent(siblingPackage: Package): boolean {
 }
 
 export const siblingInstaller = {
-  async install(): Promise<void> {
+  async install(options: Options): Promise<void> {
     const siblings = await readSiblingTargets();
     const targets = siblings.filter(siblingTargetsCurrent);
     const sourceByTarget: ListByPackage = {};
     targets.forEach((target) => (sourceByTarget[target.directory] = ['.']));
-    const installer = new LocalInstaller(sourceByTarget);
+    const installer = new LocalInstaller(sourceByTarget, {
+      packageManager: options.packageManager,
+    });
     progressReporter.report(installer);
     await installer.install();
   },

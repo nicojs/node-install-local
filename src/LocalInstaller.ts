@@ -6,6 +6,7 @@ import { helpers } from './helpers.ts';
 import type { InstallTarget, PackageJson } from './index.ts';
 import { utils } from './utils.ts';
 import type { Options as ExecaOptions } from 'execa';
+import { prober, type PackageManager } from './prober.ts';
 
 interface PackageByDirectory {
   [directory: string]: PackageJson;
@@ -17,6 +18,7 @@ export interface Env {
 
 export interface Options {
   npmEnv?: Env;
+  packageManager: PackageManager | undefined;
 }
 
 export interface ListByPackage {
@@ -89,14 +91,24 @@ export class LocalInstaller extends EventEmitter {
     const toInstall = target.sources.map((source) =>
       resolvePackFile(this.uniqueDir, source.packageJson),
     );
+    const pkgManager = this.options.packageManager ?? (await prober.probePackageManager());
     const options: ExecaOptions = {
       cwd: target.directory,
       maxBuffer: TEN_MEGA_BYTE,
-      env: this.options.npmEnv,
+      env: {
+        ...this.options.npmEnv,
+        npm_config_save: 'false',
+        npm_config_lockfile: 'false',
+      },
     };
+    const installArgs =
+      pkgManager === 'pnpm'
+        ? ['add', ...toInstall]
+        : ['i', '--no-save', '--no-package-lock', ...toInstall];
+
     const { stdout, stderr } = await utils.exec(
-      'npm',
-      ['i', '--no-save', '--no-package-lock', ...toInstall],
+      pkgManager,
+      installArgs,
       options,
     );
     this.emit(

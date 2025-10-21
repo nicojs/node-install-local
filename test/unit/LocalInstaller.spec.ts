@@ -6,6 +6,7 @@ import { resolve } from 'path';
 import sinon from 'sinon';
 import { utils } from '../../src/utils.ts';
 import { LocalInstaller } from './../../src/LocalInstaller.ts';
+import { prober } from '../../src/prober.ts';
 const TEN_MEGA_BYTE = 1024 * 1024 * 10;
 
 describe('LocalInstaller install', () => {
@@ -17,6 +18,7 @@ describe('LocalInstaller install', () => {
     public getRandomTmpDirStub = sinon
       .stub(utils, 'getRandomTmpDir')
       .returns(tmpDir);
+    public probePackageManagerStub = sinon.stub(prober, 'probePackageManager');
   }
 
   let sut: LocalInstaller;
@@ -46,9 +48,12 @@ describe('LocalInstaller install', () => {
     helper.mkdirStub.resolves();
   });
 
-  describe('with some normal packages', () => {
+  describe('pkg=npm', () => {
     beforeEach(() => {
-      sut = new LocalInstaller({ '/a': ['b', 'c'], d: ['/e'] });
+      sut = new LocalInstaller(
+        { '/a': ['b', 'c'], d: ['/e'] },
+        { packageManager: 'npm' },
+      );
       stubPackageJson({ '/a': 'a', b: 'b', c: 'c', d: 'd', '/e': 'e' });
       helper.execStub.resolves(
         createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
@@ -90,12 +95,26 @@ describe('LocalInstaller install', () => {
           tmp('b-0.0.1.tgz'),
           tmp('c-0.0.2.tgz'),
         ],
-        { cwd: resolve('/a'), env: undefined, maxBuffer: TEN_MEGA_BYTE },
+        {
+          cwd: resolve('/a'),
+          maxBuffer: TEN_MEGA_BYTE,
+          env: {
+            npm_config_save: 'false',
+            npm_config_lockfile: 'false',
+          },
+        },
       );
       expect(helper.execStub).calledWith(
         'npm',
         ['i', '--no-save', '--no-package-lock', tmp('e-0.0.4.tgz')],
-        { cwd: resolve('d'), env: undefined, maxBuffer: TEN_MEGA_BYTE },
+        {
+          cwd: resolve('d'),
+          maxBuffer: TEN_MEGA_BYTE,
+          env: {
+            npm_config_save: 'false',
+            npm_config_lockfile: 'false',
+          },
+        },
       );
     });
 
@@ -131,9 +150,70 @@ describe('LocalInstaller install', () => {
     });
   });
 
-  describe('with scoped packages', () => {
+  describe('pkg=pnpm', () => {
+    beforeEach(() => {
+      sut = new LocalInstaller(
+        { '/a': ['b', 'c'], d: ['/e'] },
+        { packageManager: 'pnpm' },
+      );
+      stubPackageJson({ '/a': 'a', b: 'b', c: 'c', d: 'd', '/e': 'e' });
+      helper.execStub.resolves(
+        createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
+      );
+      helper.rimrafStub.resolves();
+    });
+
+    it('should install correct packages', async () => {
+      await sut.install();
+      expect(helper.execStub).calledWith(
+        'pnpm',
+        ['add', tmp('b-0.0.1.tgz'), tmp('c-0.0.2.tgz')],
+        {
+          cwd: resolve('/a'),
+          maxBuffer: TEN_MEGA_BYTE,
+          env: {
+            npm_config_save: 'false',
+            npm_config_lockfile: 'false',
+          },
+        },
+      );
+      expect(helper.execStub).calledWith('pnpm', ['add', tmp('e-0.0.4.tgz')], {
+        cwd: resolve('d'),
+        maxBuffer: TEN_MEGA_BYTE,
+        env: {
+          npm_config_save: 'false',
+          npm_config_lockfile: 'false',
+        },
+      });
+    });
+  });
+
+  describe('probing package manager', () => {
     beforeEach(() => {
       sut = new LocalInstaller({ '/a': ['b'] });
+      stubPackageJson({ '/a': 'a', b: 'b' });
+      helper.execStub.resolves(
+        createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
+      );
+      helper.rimrafStub.resolves();
+    });
+    it('should use npm when probe package manager provides npm', async () => {
+      helper.probePackageManagerStub.resolves('npm');
+      await sut.install();
+      expect(helper.execStub).calledWith('npm');
+      expect(helper.probePackageManagerStub).calledOnce;
+    });
+    it('should use pnpm when probe package manager provides pnpm', async () => {
+      helper.probePackageManagerStub.resolves('pnpm');
+      await sut.install();
+      expect(helper.execStub).calledWith('pnpm');
+      expect(helper.probePackageManagerStub).calledOnce;
+    });
+  });
+
+  describe('with scoped packages', () => {
+    beforeEach(() => {
+      sut = new LocalInstaller({ '/a': ['b'] }, { packageManager: 'npm' });
       stubPackageJson({ '/a': 'a', b: '@s/b' });
       helper.execStub.resolves(
         createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
@@ -155,7 +235,10 @@ describe('LocalInstaller install', () => {
   describe('with npmEnv', () => {
     const npmEnv = { test: 'test', dummy: 'dummy' };
     beforeEach(() => {
-      sut = new LocalInstaller({ '/a': ['b'] }, { npmEnv });
+      sut = new LocalInstaller(
+        { '/a': ['b'] },
+        { npmEnv, packageManager: 'npm' },
+      );
       stubPackageJson({ '/a': 'a', b: 'b' });
       helper.execStub.resolves(
         createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
@@ -168,7 +251,15 @@ describe('LocalInstaller install', () => {
       expect(helper.execStub).calledWith(
         'npm',
         ['i', '--no-save', '--no-package-lock', tmp('b-0.0.1.tgz')],
-        { env: npmEnv, cwd: resolve('/a'), maxBuffer: TEN_MEGA_BYTE },
+        {
+          env: {
+            ...npmEnv,
+            npm_config_save: 'false',
+            npm_config_lockfile: 'false',
+          },
+          cwd: resolve('/a'),
+          maxBuffer: TEN_MEGA_BYTE,
+        },
       );
     });
   });
@@ -182,7 +273,7 @@ describe('LocalInstaller install', () => {
 
   describe('when packing errors', () => {
     beforeEach(() => {
-      sut = new LocalInstaller({ '/a': ['b'] }, {});
+      sut = new LocalInstaller({ '/a': ['b'] }, { packageManager: 'npm' });
       stubPackageJson({ '/a': 'a', b: 'b' });
     });
 
@@ -194,7 +285,7 @@ describe('LocalInstaller install', () => {
 
   describe('when installing errors', () => {
     beforeEach(() => {
-      sut = new LocalInstaller({ '/a': ['b'] }, {});
+      sut = new LocalInstaller({ '/a': ['b'] }, { packageManager: 'npm' });
       stubPackageJson({ '/a': 'a', b: 'b' });
       stubPack('b');
     });
