@@ -1,4 +1,3 @@
-import flatMap from 'lodash.flatmap';
 import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -123,8 +122,7 @@ export class LocalInstaller extends EventEmitter {
   private async resolvePackages(): Promise<PackageByDirectory> {
     const uniqueDirectories = new Set(
       Object.keys(this.sourcesByTarget).concat(
-        flatMap(
-          Object.keys(this.sourcesByTarget),
+        Object.keys(this.sourcesByTarget).flatMap(
           (target) => this.sourcesByTarget[target],
         ),
       ),
@@ -163,8 +161,7 @@ export class LocalInstaller extends EventEmitter {
   private async packAll(): Promise<void> {
     const allSources = Array.from(
       new Set(
-        flatMap(
-          Object.keys(this.sourcesByTarget),
+        Object.keys(this.sourcesByTarget).flatMap(
           (target) => this.sourcesByTarget[target],
         ),
       ),
@@ -183,7 +180,7 @@ export class LocalInstaller extends EventEmitter {
   }
 
   private removeTmpDirectory(): Promise<void> {
-    return utils.del(this.uniqueDir);
+    return fs.rm(this.uniqueDir, { recursive: true, force: true });
   }
 }
 

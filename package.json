@@ -43,7 +43,7 @@
     "url": "https://github.com/nicojs/node-install-local/issues"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=20"
   },
   "homepage": "https://github.com/nicojs/node-install-local#readme",
   "devDependencies": {
@@ -53,10 +53,8 @@
     "@stryker-mutator/typescript-checker": "^9.2.0",
     "@types/chai": "^5.2.2",
     "@types/chai-as-promised": "8.0.2",
-    "@types/lodash.flatmap": "^4.5.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.8.1",
-    "@types/rimraf": "^4.0.5",
     "@types/semver": "^7.7.1",
     "@types/sinon": "^17.0.4",
     "@types/sinon-chai": "^4.0.0",
@@ -68,6 +66,7 @@
     "eslint-plugin-chai-friendly": "^1.1.0",
     "mocha": "^11.7.4",
     "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
     "semver": "^7.7.3",
     "sinon": "^21.0.0",
     "sinon-chai": "^4.0.1",
@@ -76,8 +75,6 @@
   },
   "dependencies": {
     "execa": "^9.6.0",
-    "lodash.flatmap": "^4.5.0",
-    "rimraf": "^6.0.1",
     "uniqid": "^5.4.0"
   }
 }

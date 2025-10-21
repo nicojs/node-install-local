@@ -14,7 +14,7 @@ describe('LocalInstaller install', () => {
     public execStub = sinon.stub(utils, 'exec');
     public mkdirStub = sinon.stub(fs, 'mkdir');
     public readFileStub = sinon.stub(fs, 'readFile');
-    public rimrafStub = sinon.stub(utils, 'del');
+    public rmStub = sinon.stub(fs, 'rm');
     public getRandomTmpDirStub = sinon
       .stub(utils, 'getRandomTmpDir')
       .returns(tmpDir);
@@ -58,7 +58,7 @@ describe('LocalInstaller install', () => {
       helper.execStub.resolves(
         createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
       );
-      helper.rimrafStub.resolves();
+      helper.rmStub.resolves();
     });
 
     it('should create a temporary directory', async () => {
@@ -146,7 +146,10 @@ describe('LocalInstaller install', () => {
     it('should remove the temporary directory', async () => {
       await sut.install();
 
-      expect(helper.rimrafStub).calledWith(tmpDir);
+      sinon.assert.calledWithExactly(helper.rmStub, tmpDir, {
+        recursive: true,
+        force: true,
+      });
     });
   });
 
@@ -160,7 +163,7 @@ describe('LocalInstaller install', () => {
       helper.execStub.resolves(
         createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
       );
-      helper.rimrafStub.resolves();
+      helper.rmStub.resolves();
     });
 
     it('should install correct packages', async () => {
@@ -195,7 +198,7 @@ describe('LocalInstaller install', () => {
       helper.execStub.resolves(
         createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
       );
-      helper.rimrafStub.resolves();
+      helper.rmStub.resolves();
     });
     it('should use npm when probe package manager provides npm', async () => {
       helper.probePackageManagerStub.resolves('npm');
@@ -218,7 +221,7 @@ describe('LocalInstaller install', () => {
       helper.execStub.resolves(
         createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
       );
-      helper.rimrafStub.resolves();
+      helper.rmStub.resolves();
     });
 
     it('should install scoped packages', async () => {
@@ -243,7 +246,7 @@ describe('LocalInstaller install', () => {
       helper.execStub.resolves(
         createExecaResult({ stdout: 'stdout', stderr: 'stderr' }),
       );
-      helper.rimrafStub.resolves();
+      helper.rmStub.resolves();
     });
 
     it('should call npm with correct env vars', async () => {
