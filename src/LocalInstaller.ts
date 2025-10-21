@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
+import os from 'os';
 import path from 'path';
 import { helpers } from './helpers.ts';
 import type { InstallTarget, PackageJson } from './index.ts';
@@ -17,7 +18,8 @@ export interface Env {
 
 export interface Options {
   npmEnv?: Env;
-  packageManager: PackageManager | undefined;
+  packageManager?: PackageManager;
+  concurrent?: number;
 }
 
 export interface ListByPackage {
@@ -82,7 +84,13 @@ export class LocalInstaller extends EventEmitter {
 
   private async installAll(installTargets: InstallTarget[]): Promise<void> {
     this.emit('install_start', this.sourcesByTarget);
-    await Promise.all(installTargets.map((target) => this.installOne(target)));
+    // Install targets with max concurrent operations
+    const batchSize = this.options.concurrent ?? os.cpus().length;
+    for (let i = 0; i < installTargets.length; i += batchSize) {
+      const batch = installTargets.slice(i, i + batchSize);
+      await Promise.all(batch.map((target) => this.installOne(target)));
+    }
+
     this.emit('install_end');
   }
 

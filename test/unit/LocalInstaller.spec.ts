@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import type { ResultPromise } from 'execa';
+import type { Options, Result, ResultPromise } from 'execa';
 import { promises as fs } from 'fs';
 import os from 'os';
 import { resolve } from 'path';
@@ -267,6 +267,44 @@ describe('LocalInstaller install', () => {
     });
   });
 
+  describe('with concurrent', () => {
+    beforeEach(() => {
+      sut = new LocalInstaller(
+        { '/a': ['c'], '/b': ['c'] },
+        { packageManager: 'npm', concurrent: 1 },
+      );
+      stubPackageJson({
+        '/a': 'a',
+        '/b': 'b',
+        c: 'c',
+      });
+      helper.rmStub.resolves();
+    });
+
+    it('should install with the specified concurrency', async () => {
+      const calls: ((res: Result<Options>) => void)[] = [];
+      helper.execStub.callsFake((file, args) => {
+        if(file === 'npm' && args?.includes('pack')) {
+          return Promise.resolve(createExecaResult()) as ResultPromise;
+        }
+        return new Promise(res => {
+          calls.push(res);
+        }) as ResultPromise;
+      });
+
+      const onGoingInstall = sut.install();
+      await tick();
+      await tick();
+      expect(calls).to.have.lengthOf(1);
+      calls[0](createExecaResult());
+      await tick();
+      await tick();
+      expect(calls).to.have.lengthOf(2);
+      calls[1](createExecaResult());
+      await onGoingInstall
+    });
+  });
+
   describe('when readFile errors', () => {
     it('should propagate the error', () => {
       helper.readFileStub.rejects(new Error('file error'));
@@ -320,3 +358,7 @@ describe('LocalInstaller install', () => {
     });
   };
 });
+
+function tick(): Promise<void> {
+  return new Promise((res) => process.nextTick(res));
+}
