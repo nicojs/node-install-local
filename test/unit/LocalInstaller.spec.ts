@@ -146,7 +146,10 @@ describe('LocalInstaller install', () => {
     it('should remove the temporary directory', async () => {
       await sut.install();
 
-      sinon.assert.calledWithExactly(helper.rmStub, tmpDir, { recursive: true, force: true });
+      sinon.assert.calledWithExactly(helper.rmStub, tmpDir, {
+        recursive: true,
+        force: true,
+      });
     });
   });
 
