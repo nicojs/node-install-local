@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "all": "npm run clean && npm run build && npm run lint && npm run test",
-    "clean": "rimraf dist reports .stryker-tmp",
+    "clean": "rimraf -g dist reports .stryker-tmp \"?(src|test)/*.tsbuildinfo\"",
     "build": "tsc -b",
     "lint": "npm run lint:eslint && npm run lint:format",
     "lint:eslint": "eslint .",
