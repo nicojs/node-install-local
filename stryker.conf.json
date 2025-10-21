@@ -3,9 +3,8 @@
   "testRunner": "mocha",
   "reporters": ["html", "progress", "dashboard"],
   "checkers": ["typescript"],
-  "buildCommand": "npm run build",
   "mochaOptions": {
-    "spec": ["dist/test/unit/**/*.js"]
+    "spec": ["test/unit/**/*.ts"]
   },
   "coverageAnalysis": "perTest",
   "thresholds": {
