@@ -1,3 +1,25 @@
+# Changelog
+
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [4.0.0](https://github.com/nicojs/node-install-local/compare/v3.0.1...v4.0.0) (2025-10-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **node:** Please use node 20 or higher
+* **node:** This package is now a pure ECMAScript Module (esm).
+
+### Features
+
+* **node:** update min node version to 20 ([#54](https://github.com/nicojs/node-install-local/issues/54)) ([713669e](https://github.com/nicojs/node-install-local/commit/713669e6045bdf9c434cfe88d66c0a6326c30b0e))
+* **pnpm:** support `pnpm` to install dependencies ([#53](https://github.com/nicojs/node-install-local/issues/53)) ([da1782e](https://github.com/nicojs/node-install-local/commit/da1782ee08a9d21d896447d9f8103e6003d297f4))
+
+
+### Bug Fixes
+
+* **update:** update install-local ([#51](https://github.com/nicojs/node-install-local/issues/51)) ([8cc54d3](https://github.com/nicojs/node-install-local/commit/8cc54d374d8ed7e53459eaa767547506af91283e))
+
 ## [3.0.1](https://github.com/nicojs/node-install-local/compare/v3.0.0...v3.0.1) (2020-10-16)
 
 ### Bug Fixes
