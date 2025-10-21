@@ -18,11 +18,7 @@
     "test:mutation": "stryker run",
     "start": "tsc -b -w",
     "preversion": "npm run all",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
-    "postversion": "npm publish && git push && git push --tags",
-    "release:patch": "npm version patch -m \"chore(release): %s\"",
-    "release:minor": "npm version minor -m \"chore(release): %s\"",
-    "release:major": "npm version major -m \"chore(release): %s\""
+    "release": "commit-and-tag-version"
   },
   "bin": {
     "install-local": "bin/install-local"
@@ -61,7 +57,7 @@
     "@types/uniqid": "^5.3.4",
     "chai": "^6.2.0",
     "chai-as-promised": "^8.0.2",
-    "conventional-changelog-cli": "^5.0.0",
+    "commit-and-tag-version": "^12.6.0",
     "eslint": "^9.38.0",
     "eslint-plugin-chai-friendly": "^1.1.0",
     "mocha": "^11.7.4",
