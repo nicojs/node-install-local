@@ -284,10 +284,10 @@ describe('LocalInstaller install', () => {
     it('should install with the specified concurrency', async () => {
       const calls: ((res: Result<Options>) => void)[] = [];
       helper.execStub.callsFake((file, args) => {
-        if(file === 'npm' && args?.includes('pack')) {
+        if (file === 'npm' && args?.includes('pack')) {
           return Promise.resolve(createExecaResult()) as ResultPromise;
         }
-        return new Promise(res => {
+        return new Promise((res) => {
           calls.push(res);
         }) as ResultPromise;
       });
@@ -301,7 +301,7 @@ describe('LocalInstaller install', () => {
       await tick();
       expect(calls).to.have.lengthOf(2);
       calls[1](createExecaResult());
-      await onGoingInstall
+      await onGoingInstall;
     });
   });
 
