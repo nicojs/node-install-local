@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [4.1.0](https://github.com/nicojs/node-install-local/compare/v4.0.0...v4.1.0) (2025-10-21)
+
+
+### Features
+
+* **concurrent:** support max concurrent installs ([#56](https://github.com/nicojs/node-install-local/issues/56)) ([072d5e3](https://github.com/nicojs/node-install-local/commit/072d5e3ad9c8c7376780a1b317a8021d2968ad28))
+
 ## [4.0.0](https://github.com/nicojs/node-install-local/compare/v3.0.1...v4.0.0) (2025-10-21)
 
 
