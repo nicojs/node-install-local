@@ -10,7 +10,7 @@ const installLocal = path.resolve('bin', 'install-local');
 const tmpDir = path.resolve(os.tmpdir(), 'local-installer-it');
 const tmpFolder = (name: string) => path.resolve(tmpDir, name);
 
-describe('install-local cli given 3 packages', () => {
+describe('install-local cli', () => {
   let packages: {
     one: PackageHelper;
     two: PackageHelper;
@@ -85,6 +85,54 @@ describe('install-local cli given 3 packages', () => {
       cwd: packages.one.directory,
     });
   });
+  it('should support pnpm', async () => {
+    // Arrange
+    packages.one.packageJson.localDependencies = {
+      two: '../two',
+    };
+    packages.two.packageJson.version = '1.0.0';
+    packages.one.pnpmLock = emptyPnpmLockFile;
+    await Promise.all([
+      packages.one.writePackage(),
+      packages.two.writePackage(),
+    ]);
+    await execaCommand('pnpm add -E typed-inject@5.0.0', {
+      cwd: packages.one.directory,
+    });
+    const expectedLink = await fs.readlink(
+      path.resolve(packages.one.directory, 'node_modules', 'typed-inject'),
+    );
+    expect(expectedLink).to.contain(
+      path.join('.pnpm', 'typed-inject@5.0.0', 'node_modules', 'typed-inject'),
+    ); // verify arrange
+    const expectedPnpmLock = await packages.one.readFile('pnpm-lock.yaml');
+
+    // Act
+    await execaCommand(`node ${installLocal}`, {
+      cwd: packages.one.directory,
+    });
+
+    // Assert
+    const installed = await packages.one.readdir('node_modules');
+    expect(installed).to.deep.eq(['two', 'typed-inject']);
+    const actualLink = await fs.readlink(
+      path.resolve(packages.one.directory, 'node_modules', 'typed-inject'),
+    );
+    expect(actualLink).to.eq(expectedLink); // verify arrange
+    expect(await packages.one.readFile('pnpm-lock.yaml')).to.eq(
+      expectedPnpmLock,
+    );
+    const actualPackageOne = JSON.parse(
+      await packages.one.readFile('package.json'),
+    ) as PackageJson;
+    expect(actualPackageOne.dependencies).deep.eq({
+      'typed-inject': '5.0.0',
+    });
+    expect(actualPackageOne.devDependencies).to.be.undefined;
+    expect(actualPackageOne.localDependencies).to.deep.eq({
+      two: '../two',
+    });
+  });
 });
 
 class PackageHelper implements Package {
@@ -92,6 +140,7 @@ class PackageHelper implements Package {
   public directory: string;
   public packageJson: PackageJson;
   public packageLock: Record<string, unknown> | undefined;
+  public pnpmLock: string | undefined;
   constructor(name: string) {
     this.name = name;
     this.directory = tmpFolder(name);
@@ -124,6 +173,24 @@ class PackageHelper implements Package {
             'utf-8',
           )
         : Promise.resolve(),
+      this.pnpmLock
+        ? fs.writeFile(
+            path.resolve(this.directory, 'pnpm-lock.yaml'),
+            this.pnpmLock,
+            'utf-8',
+          )
+        : Promise.resolve(),
     ]);
   }
 }
+
+const emptyPnpmLockFile = `lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .: {}
+`;

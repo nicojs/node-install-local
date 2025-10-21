@@ -1,3 +1,5 @@
+import { validPackageManagers, type PackageManager } from './prober.ts';
+
 export class Options {
   public readonly dependencies: string[];
   public readonly options: string[];
@@ -21,6 +23,15 @@ export class Options {
           `Invalid use of option --target-siblings. Cannot be used together with --save`,
         ),
       );
+    } else if (
+      this.packageManager &&
+      !validPackageManagers.includes(this.packageManager)
+    ) {
+      return Promise.reject(
+        new Error(
+          `Invalid package manager <${this.packageManager}> specified. Please use either 'npm' or 'pnpm'.`,
+        ),
+      );
     } else {
       return Promise.resolve();
     }
@@ -32,6 +43,15 @@ export class Options {
 
   public get targetSiblings(): boolean {
     return this.flag('-T', '--target-siblings');
+  }
+
+  public get packageManager(): PackageManager | undefined {
+    const pkgOption = this.options.find((opt) => opt.startsWith('--pkg='));
+    if (pkgOption) {
+      const [, value] = pkgOption.split('=');
+      return value as PackageManager;
+    }
+    return undefined;
   }
 
   public get save(): boolean {

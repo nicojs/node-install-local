@@ -4,7 +4,7 @@ import { siblingInstaller } from './siblingInstall.ts';
 
 export function execute(options: Options): Promise<void> {
   if (options.targetSiblings) {
-    return siblingInstaller.install();
+    return siblingInstaller.install(options);
   } else {
     return currentDirectoryInstaller.install(options);
   }

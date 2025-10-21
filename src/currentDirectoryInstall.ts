@@ -7,9 +7,12 @@ import { storage } from './save.ts';
 export const currentDirectoryInstaller = {
   install: async (options: Options): Promise<void> => {
     const localDependencies = await readLocalDependencies(options.dependencies);
-    const installer = new LocalInstaller({
-      [process.cwd()]: localDependencies,
-    });
+    const installer = new LocalInstaller(
+      {
+        [process.cwd()]: localDependencies,
+      },
+      { packageManager: options.packageManager },
+    );
     progressReporter.report(installer);
     const targets = await installer.install();
     await storage.saveIfNeeded(targets, options);
